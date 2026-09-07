@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block title %} {{article.title}} |Actu Web {% endblock %}
+
+{% block link %}
+<!--<link rel="icon" href="{% static 'images/actuweb.ico' %}" type="image/x-icon">-->
+<!--<link rel="icon" href="{% static 'images/actuweb.png' %}" type="image/png">-->
+{% endblock %}
+,
+{% block description %}Actu Web est un site qui vous offre : les dernières actualités politiques, les résultats sportifs et classements des 5 grands championnats européens. Vous pouvez aussi écouter des musiques en ligne, profiter de la radio, regarder des chaînes TV, consulter la météo, discuter avec Gemini directement depuis le site, et suivre les actualités santé et technologies.{% endblock %}
+{% block og_description %}Actu Web est un site qui vous offre : les dernières actualités politiques, les résultats sportifs, regarder des chaînes TV, consulter la météo, écouter des musiques et classements des 5 grands championnats européens.{% endblock %}
+{% block og_title %}Actu Web — Politiques, Sports, Santé, Musiques, Résultats matchs{% endblock %}
+{% block og_url %}{{ request.url }}{% endblock %}
+{% block og_image %}{% static 'images/actuweb.png' %}{% endblock %}
+
+{% block content %}
+
+<style>
+        /* Styles de base pour structurer visuellement votre page */
+        .article-container { max-width: 800px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; }
+        .badge { padding: 5px 10px; color: #00c8c8; border-radius: 4px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
+        .news { background-color: #007bff; } .politics { background-color: #dc3545; } .health { background-color: #28a745; } .sports { background-color: #ffc107; color: black; }
+        .meta { color: #6c757d; font-size: 0.9rem; margin-top: 10px; }
+        .main-image { width: 100%; max-height: 450px; object-fit: cover; border-radius: 8px; margin: 20px 0; }
+        .summary { font-size: 1.2rem; color: #647878; line-height: 1.6; border-left: 4px solid #007bff; padding-left: 15px; font-style: italic; }
+        .content { font-size: 1.1rem; line-height: 1.8; color: white; margin-top: 30px; }
+        .sources-box { background: #f8f9fa; padding: 15px; border-radius: 4px; margin-top: 40px; font-size: 0.9rem; color:black; }
+
+
+    .suggestions-section { margin-top: 30px; }
+.suggestions-section h3 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+    display: inline-block;
+}
+.suggestions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 22px;
+    margin-top: 20px;
+}
+.suggestion-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.suggestion-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+}
+.suggestion-thumb-wrap {
+    position: relative;
+    width: 100%;
+    height: 140px;
+    background: #eef1f4;
+    overflow: hidden;
+}
+.suggestion-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.3s ease;
+}
+.suggestion-card:hover .suggestion-thumb {
+    transform: scale(1.06);
+}
+.suggestion-thumb-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #a0aec0;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+.suggestion-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 3px 9px;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.suggestion-body {
+    padding: 14px 16px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+.suggestion-title {
+    margin: 0 0 8px 0;
+    font-size: 1.02rem;
+    line-height: 1.35;
+    color: #1a202c;
+}
+.suggestion-summary {
+    font-size: 0.85rem;
+    color: #718096;
+    line-height: 1.5;
+    margin: 0 0 14px 0;
+    flex-grow: 1;
+}
+.suggestion-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #a0aec0;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 10px;
+}
+.suggestion-link {
+    color: #007bff;
+    font-weight: bold;
+}
+.suggestions-empty {
+    color: #a0aec0;
+    font-style: italic;
+    grid-column: 1 / -1;
+}
+    </style>
+
+
+    <main class="article-container">
+        <!-- 1. Catégorie (Affiche le nom propre grâce à get_category_display) -->
+        <span class="badge {{ article.category }}">
+            {{ article.get_category_display }}
+        </span>
+
+        <!-- 2. Titre principal -->
+        <h1>{{ article.title }}</h1>
+
+        <!-- 3. Métadonnées (Auteur et Date formatée) -->
+        <p class="meta">
+            Publié par <strong>{{ article.author.get_full_name|default:article.author.username }}</strong>
+            le {{ article.published_at|date:"d F Y à H:i" }}
+        </p>
+
+        <!-- 4. Image de couverture (Uniquement si elle existe) -->
+        {% if article.image %}
+            <img class="main-image" src="{{ article.image}}" alt="{{ article.title }}">
+        {% endif %}
+
+        <!-- 5. Résumé (Summary) -->
+        <p class="summary">
+            {{ article.summary }}
+        </p>
+
+        <!-- 6. Contenu complet (Le filtre linebreaks conserve les retours à la ligne du formulaire admin) -->
+        <div class="content">
+            {{ article.content|linebreaks }}
+        </div>
+
+        <!-- 7. Sources (Uniquement si renseignées) -->
+        {% if article.sources %}
+            <div class="sources-box">
+                <strong>Sources & Références :</strong>
+                <span>{{ article.sources }}</span>
+            </div>
+        {% endif %}
+
+        <!-- Bouton retour -->
+        <p style="margin-top: 40px;">
+            <a href="{% url 'ActuWebApp:index' %}">← Retour aux articles</a>
+        </p>
+
+<!--A lire aussi d'autre article-->
+<hr style="margin-top: 50px; border: 0; border-top: 1px solid #eee;">
+
+<section class="suggestions-section">
+    <h3>À lire aussi (Dans la même catégorie)</h3>
+
+    <div class="suggestions-grid">
+        {% for checked_article in similar_articles %}
+            <a class="suggestion-card"
+               href="{% url 'ActuWebApp:article_detail' checked_article.published_at.year checked_article.published_at|date:'m' checked_article.published_at|date:'d' checked_article.slug %}">
+                <div class="suggestion-thumb-wrap">
+                    <span class="suggestion-badge {{ checked_article.category }}">{{ checked_article.get_category_display }}</span>
+                    {% if checked_article.image %}
+                        <img class="suggestion-thumb" src="{{ checked_article.image }}" alt="{{ checked_article.title }}">
+                    {% else %}
+                        <div class="suggestion-thumb-placeholder">Actu Web</div>
+                    {% endif %}
+                </div>
+                <div class="suggestion-body">
+                    <h4 class="suggestion-title">{{ checked_article.title }}</h4>
+                    <p class="suggestion-summary">{{ checked_article.summary|truncatechars:90 }}</p>
+                    <div class="suggestion-footer">
+                        <span>{{ checked_article.published_at|date:"d M Y" }}</span>
+                        <span class="suggestion-link">Lire →</span>
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <p class="suggestions-empty">Aucun autre article similaire pour le moment.</p>
+        {% endfor %}
+    </div>
+</section>
+    </main>
+{% endblock %}

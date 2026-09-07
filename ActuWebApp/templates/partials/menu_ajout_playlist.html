@@ -1,0 +1,19 @@
+<div class="np-dropdown">
+    <p class="np-dropdown-title">Ajouter à une playlist</p>
+    <ul class="np-dropdown-list">
+        {% for p in playlists %}
+        <li>
+            <button type="button" class="np-dropdown-item"
+                    hx-post="{% url 'ActuWebApp:ajouter_musique_playlist' musique_id=musique.id playlist_id=p.id %}"
+                    hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'
+                    hx-target="#np-playlist-menu"
+                    hx-swap="innerHTML">
+                <i class="fas fa-list-ul"></i>
+                <span>{{ p.nom }}</span>
+            </button>
+        </li>
+        {% empty %}
+        <li class="np-dropdown-empty">Aucune playlist. Créez-en une depuis la page Musiques.</li>
+        {% endfor %}
+    </ul>
+</div>

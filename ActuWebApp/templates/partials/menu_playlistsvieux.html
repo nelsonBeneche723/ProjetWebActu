@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="dropdown-playlists">
+    {% for p in playlists %}
+<button hx-post="{% url 'ActuWebApp:ajout_playlist' musique_id=musique_id playlist_id=p.id%}" hx-swap="outerHTML">
+  {{p.nom}}
+</button>
+
+{% empty %}
+  <p class="vide">Aucune playlist pour le moment.</p>
+  {% endfor %}
+</div>
+{%endblock %}

@@ -1,0 +1,121 @@
+ <div class="ranking-card">
+                    <div class="ranking-card__head">
+                        <span class="flag">{{ flag }}</span>
+                        <h3>{{ league_name }} — Classement</h3>
+                    </div>
+                    <div class="ranking-wrap">
+                        <table class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Équipe</th>
+                                    <th>J</th>
+                                    <th>Pts</th>
+                                    <th>G</th>
+                                    <th>N</th>
+                                    <th>P</th>
+                                    <th>BP</th>
+                                    <th>BC</th>
+                                    <th>Diff</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cl in rows %}
+                                <tr>
+                                    <td>
+                                        <span class="pos-badge {% if forloop.counter == 1 %} {{'pos-1'}} {% elif forloop.counter == 2 %} {{'pos-2'}} {% elif forloop.counter == 3 %}{{'pos-3'}} {% endif %}">
+                                            {{ cl.position }}
+                                        </span>
+                                    </td>
+                                    <td>{{ cl.equipe }}</td>
+                                    <td>{{ cl.journee }}</td>
+                                    <td><span class="pts-badge">{{ cl.points }}</span></td>
+                                    <td style="color:var(--sp-green)">{{ cl.gagne }}</td>
+                                    <td>{{ cl.nul }}</td>
+                                    <td style="color:var(--sp-red)">{{ cl.perdu }}</td>
+                                    <td>{{ cl.buts_marques }}</td>
+                                    <td>{{ cl.buts_encaisses }}</td>
+                                    <td>
+                                        {% if cl.difference > 0 %}
+                                            <span style="color:var(--sp-green)">+{{ cl.difference }}</span>
+                                        {% elif cl.difference < 0 %}
+                                            <span style="color:var(--sp-red)">{{ cl.difference }}</span>
+                                        {% else %}
+                                            {{ cl.difference }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="ranking-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#3B82F6"></div> Ligue des Champions
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#F5A623"></div> Europa League
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:var(--sp-red)"></div> Relégation
+                        </div>
+                    </div>
+                </div>
+<!--            </div>-->
+
+            <!-- Graphique -->
+            {% if image %}
+            <div class="chart-wrap">
+                <img src="data:image/png;base64,{{ image }}" alt="Graphique {{ league_name }}">
+            </div>
+            {% endif %}
+
+            <!-- Matchs aujourd'hui + demain -->
+            <div class="matches-section">
+                {% if matches_auj %}
+                <div class="matches-block">
+                    <div class="matches-block-title">
+                        <i class="fas fa-circle"></i> Matchs Aujourd'hui
+                    </div>
+                    <div class="matches-grid">
+                        {% for mat in matches_auj %}
+                        <div class="match-card">
+                            <div class="match-card__vs">
+                                <span class="match-card__team">{{ mat.key_dom }}</span>
+                                <span class="match-card__sep">VS</span>
+                                <span class="match-card__team">{{ mat.key_ext }}</span>
+                            </div>
+                            <div class="match-card__date">
+                                <i class="fas fa-clock"></i>
+                                {{ mat.key_date }} (PAP)
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if matches_dem %}
+                <div class="matches-block">
+                    <div class="matches-block-title">
+                        <i class="fas fa-calendar-day"></i> Matchs Demain
+                    </div>
+                    <div class="matches-grid">
+                        {% for matc in matches_dem %}
+                        <div class="match-card">
+                            <div class="match-card__vs">
+                                <span class="match-card__team">{{ matc.key_dom_dem }}</span>
+                                <span class="match-card__sep">VS</span>
+                                <span class="match-card__team">{{ matc.key_ext_dem }}</span>
+                            </div>
+                            <div class="match-card__date">
+                                <i class="fas fa-clock"></i>
+                                {{ matc.key_date_dem }} (PAP)
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+

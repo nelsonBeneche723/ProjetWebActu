@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% block link %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+<style>
+    .pl-player {
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        object-fit:cover;
+        max-width: 480px;
+        margin: 0 auto 16px;
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .pl-player__cover {
+        display:block;
+        width: 290px;
+        height: 240px;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,.4);
+        margin: 0 0 10px;
+        background: #222;
+        flex-shrink:0;
+    }
+
+    .pl-player__title { font-weight: 700; margin: 4px 0 0; }
+    .pl-player__artist { color: #999; font-size: .9rem; margin: 0 0 12px; }
+    .pl-progress-track {
+        position: relative;
+        height: 5px;
+        background: rgba(255,255,255,.15);
+        border-radius: 10px;
+        margin: 0 20px 6px;
+        cursor: pointer;
+    }
+    .pl-progress-fill {
+        position: absolute;
+        top: 0; left: 0; height: 100%;
+        width: 0%;
+        background: var(--sp-red, #e8274b);
+        border-radius: 10px;
+    }
+    #pl-progress-input {
+        position: absolute;
+        inset: -8px 0;
+        width: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+    .pl-times {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11.5px;
+        color: #888;
+        margin: 0 20px 10px;
+    }
+    .pl-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 24px;
+    }
+    .pl-controls button {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+    }
+    #pl-play {
+        width: 54px; height: 54px;
+        border-radius: 50%;
+        background: var(--sp-red, #e8274b);
+    }
+    .pl-track {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        padding: 8px 10px;
+        border-radius: 8px;
+    }
+    .pl-track:hover { background: rgba(255,255,255,.06); }
+    .pl-track.is-playing { background: rgba(232,39,75,.15); }
+    .pl-track a { display: flex; align-items: center; gap: 12px; text-decoration: none; flex: 1; }
+    .pl-track__cover {
+        width: 60px;
+        height: 44px;
+        background-size: cover;
+        background-position: center;
+        border-radius: 6px;
+        flex-shrink: 0;
+    }
+    .pl-track__title { color: #fff; margin: 0; font-size: .92rem; }
+    .pl-track__artist { color: #999; margin: 0; font-size: .8rem; }
+</style>
+<div class="pl-player">
+    <audio id="pl-audio"></audio>
+    <div class="dep-img"><img id="pl-cover" src="" alt="" class="pl-player__cover"> </div>
+    <p id="pl-title" class="pl-player__title">Sélectionnez un morceau:</p>
+    <p id="pl-artist" class="pl-player__artist"></p>
+    <div class="pl-progress-track" id="pl-progress-track">
+        <div class="pl-progress-fill" id="pl-progress-fill"></div>
+        <input type="range" id="pl-progress-input" min="0" max="100" value="0">
+    </div>
+    <div class="pl-times">
+        <span id="pl-current-time">0:00</span>
+        <span id="pl-duration">0:00</span>
+    </div>
+    <div class="pl-controls">
+        <button id="pl-prev" type="button" title="Précédent"><i class="fas fa-backward-step"></i></button>
+        <button id="pl-play" type="button" title="Lecture/Pause"><i class="fas fa-play"></i></button>
+        <button id="pl-next" type="button" title="Suivant"><i class="fas fa-forward-step"></i></button>
+    </div>
+</div>
+<ul class="pl-track-list">
+    {% for m in detail_playlist.morceaux.all %}
+    <li class="pl-track" data-index="{{ forloop.counter0 }}"
+        data-audio="{{ m.audio_url }}"
+        data-titre="{{ m.titre }}"
+        data-artiste="{{ m.artiste }}"
+        data-cover="{{ m.image_url }}">
+        <a href="#">
+            <div class="pl-track__cover" style="background-image:url('{{ m.image_url }}');"></div>
+            <div class="pl-track__info">
+                <p class="pl-track__title">{{ m.titre }}</p>
+                <p class="pl-track__artist">{{ m.artiste }}</p>
+            </div>
+        </a>
+<!--                <button type="button" class="pl-track__remove" title="Retirer de la playlist"-->
+<!--                        hx-post=""-->
+<!--                        hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'-->
+<!--                        hx-target="#modalPlaylistMusiques"-->
+<!--                        hx-swap="outerHTML">-->
+<!--                    <i class="fas fa-trash"></i>-->
+<!--                </button>-->
+    </li>
+    {% empty %}
+    <li class="pl-track-empty">Cette playlist ne contient encore aucune musique.</li>
+    {% endfor %}
+</ul>
+<!--        <div class="mp-modal__actions">-->
+<!--            <button type="button" class="mp-modal-btn mp-modal-btn-secondary" onclick="document.getElementById('modal-container').innerHTML=''">-->
+<!--                Fermer-->
+<!--            </button>-->
+<script>
+(function () {
+    const audio = document.getElementById('pl-audio');
+    const btnPlay = document.getElementById('pl-play');
+    const btnPrev = document.getElementById('pl-prev');
+    const btnNext = document.getElementById('pl-next');
+    const cover = document.getElementById('pl-cover');
+    const titleEl = document.getElementById('pl-title');
+    const artistEl = document.getElementById('pl-artist');
+    const fill = document.getElementById('pl-progress-fill');
+    const rangeInput = document.getElementById('pl-progress-input');
+    const curEl = document.getElementById('pl-current-time');
+    const durEl = document.getElementById('pl-duration');
+    const tracks = Array.from(document.querySelectorAll('.pl-track-list .pl-track'));
+    let currentIndex = -1;
+    function fmt(sec) {
+        if (isNaN(sec) || sec === Infinity) return '0:00';
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+    function loadTrack(index) {
+        const li = tracks[index];
+        if (!li) return;
+        currentIndex = index;
+        audio.src = li.dataset.audio;
+        cover.src = li.dataset.cover;
+        titleEl.textContent = li.dataset.titre;
+        artistEl.textContent = li.dataset.artiste;
+        tracks.forEach(t => t.classList.remove('is-playing'));
+        li.classList.add('is-playing');
+        audio.play();
+        btnPlay.innerHTML = '<i class="fas fa-pause"></i>';
+    }
+    function playAudio() {
+        audio.play();
+        btnPlay.innerHTML = '<i class="fas fa-pause"></i>';
+    }
+    function pauseAudio() {
+        audio.pause();
+        btnPlay.innerHTML = '<i class="fas fa-play"></i>';
+    }
+    tracks.forEach(li => {
+        li.addEventListener('click', function (e) {
+            e.preventDefault();
+            loadTrack(Number(this.dataset.index));
+        });
+    });
+    btnPlay.addEventListener('click', () => {
+        if (currentIndex === -1) {
+            if (tracks.length) loadTrack(0);
+            return;
+        }
+        audio.paused ? playAudio() : pauseAudio();
+    });
+    btnPrev.addEventListener('click', () => {
+        if (!tracks.length) return;
+        const newIndex = (currentIndex - 1 + tracks.length) % tracks.length;
+        loadTrack(newIndex);
+    });
+    btnNext.addEventListener('click', () => {
+        if (!tracks.length) return;
+        const newIndex = (currentIndex + 1) % tracks.length;
+        loadTrack(newIndex);
+    });
+    audio.addEventListener('loadedmetadata', () => {
+        durEl.textContent = fmt(audio.duration);
+    });
+    audio.addEventListener('timeupdate', () => {
+        const pct = (audio.currentTime / audio.duration) * 100 || 0;
+        fill.style.width = pct + '%';
+        rangeInput.value = pct;
+        curEl.textContent = fmt(audio.currentTime);
+    });
+    rangeInput.addEventListener('input', () => {
+        if (audio.duration) {
+            audio.currentTime = (rangeInput.value / 100) * audio.duration;
+        }
+    });
+    audio.addEventListener('ended', () => {
+        if (currentIndex + 1 < tracks.length) {
+            loadTrack(currentIndex + 1);
+        } else {
+            pauseAudio();
+        }
+    });
+})();
+</script>
+{% endblock %}

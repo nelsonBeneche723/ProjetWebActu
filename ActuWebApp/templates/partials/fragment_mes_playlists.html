@@ -1,0 +1,30 @@
+<style>
+    .pl-item {
+        display: flex;
+        align-items:center;
+        gap:10px;
+}
+    .pl-item .pl-delete {
+        margin-left:auto;
+    }
+</style>
+
+
+{% for p in playlists %}
+
+<li class="pl-item">
+    <a href="{% url 'ActuWebApp:detail_playlist' playlist_id=p.id %}" class="pl-link">
+        <span class="pl-ico"><i class="fas fa-list-ul"></i></span>
+        <span class="pl-name">{{ p.nom }}</span>
+        <span class="pl-count">{{ p.morceaux.count }}</span>
+    </a>
+
+    <button type="button" class="pl-delete" title="Supprimer un playlist" hx-post="{% url 'ActuWebApp:supp_playlist' playlist_id=p.id %}"
+            hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}' hx-target="#liste-mes-playlists"
+            hx-swap="innerHTML" hx-confirm="Supprimer la playlist de {{p.nom}}">
+        <i class="fas fa-trash"></i>
+    </button>
+</li>
+{% empty %}
+<li class="pl-empty">Aucune playlist pour le moment.</li>
+{% endfor %}

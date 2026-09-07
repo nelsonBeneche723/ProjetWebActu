@@ -1,0 +1,107 @@
+<!-- ══ MODAL PLAYLIST ══ -->
+
+<style>
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+.modal-box {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 420px; /* Largeur maximale pour ordinateur */
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box;
+}
+.modal-box h3 {
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    font-size: 1.25rem;
+    color: gray;
+}
+/* Champ de saisie fluide */
+.mp-modal__input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s ease;
+    color: black;
+}
+.mp-modal__input:focus {
+    border-color: #2563eb;
+}
+/* Alignement des boutons */
+.modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+.mp-modal-btn {
+    padding: 0.65rem 1.25rem;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: opacity 0.2s ease;
+}
+.mp-modal-btn:hover {
+    opacity: 0.9;
+    color: grey;
+}
+/* Adaptation spécifique aux petits écrans (mobiles) */
+@media (max-width: 480px) {
+    .modal-box {
+        padding: 1.25rem;
+        border-radius: 10px;
+    }
+    .modal-box h3 {
+        font-size: 1.1rem;
+    }
+    .modal-actions {
+        flex-direction: column-reverse; /* Place le bouton principal en haut sur mobile */
+        gap: 0.5rem;
+    }
+    .mp-modal-btn {
+        width: 100%; /* Boutons pleine largeur pour faciliter le clic au pouce */
+        padding: 0.8rem 1.25rem; /* Cible tactile plus grande */
+        font-size: 1rem;
+    }
+    .mp-modal__input {
+        padding: 0.8rem 1rem;
+        font-size: 1rem; /* Évite le zoom automatique de Safari iOS sur focus */
+    }
+}
+</style>
+
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)this.remove()">
+<div class="modal-box">
+<h3>Créer une playlist</h3>
+<form hx-post="{% url 'ActuWebApp:creer_playlist' %}" hx-target="#modal-container" hx-swap="innerHTML">
+    {% csrf_token %}
+    <input type="text" name="nom" class="mp-modal__input" id="playlistName" placeholder="Nom de la playlist" required autofocus>
+     <div class="modal-actions">
+    <button type="button" class="mp-modal-btn mp-modal-btn-secondary" onclick="document.getElementById('modal-overlay').remove()"> <i class="fas fa-xmark"></i> Annuler</button>
+    <button type="submit" class="mp-modal-btn mp-modal-btn-primary"> <i class="fas fa-plus"></i> Créer</button>
+</div>
+</form>
+</div>
+</div>

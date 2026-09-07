@@ -1,0 +1,1151 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sports|Actu Web Media{% endblock %}
+
+{% block link %}
+<link rel="icon" href="{% static 'images/sport.ico' %}" type="image/x-icon">
+{% endblock %}
+
+{% block content %}
+<style>
+/* ══════════════════════════════════════
+   TOKENS
+══════════════════════════════════════ */
+:root {
+    --sp-bg:      #0A0A0F;
+    --sp-bg2:     #111118;
+    --sp-bg3:     #18181F;
+    --sp-bg4:     #1E1E28;
+    --sp-border:  rgba(255,255,255,.07);
+    --sp-red:     #E8274B;
+    --sp-gold:    #F5A623;
+    --sp-green:   #10B981;
+    --sp-blue:    #3B82F6;
+    --sp-text:    #E2E2EE;
+    --sp-muted:   #64748B;
+    --sp-muted2:  #94A3B8;
+    --ff-head:    'Bebas Neue', sans-serif;
+    --ff-body:    'Outfit', sans-serif;
+}
+
+/* ══════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════ */
+.sports-page {
+    display: flex;
+    min-height: 100vh;
+    background: var(--sp-bg);
+    font-family: var(--ff-body);
+}
+
+/* ══════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════ */
+.sports-sidebar {
+    width: 240px;
+    background: var(--sp-bg2);
+    border-right: 1px solid var(--sp-border);
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    z-index: 50;
+}
+
+.sports-sidebar::-webkit-scrollbar { width: 3px; }
+.sports-sidebar::-webkit-scrollbar-thumb { background: var(--sp-red); border-radius: 3px; }
+
+.sb-head {
+    padding: 18px 16px 14px;
+    border-bottom: 1px solid var(--sp-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sb-head-title {
+    font-family: var(--ff-head);
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: var(--sp-text);
+}
+
+/* Horloge en direct */
+.sb-clock {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(232,39,75,.06);
+    border-bottom: 1px solid var(--sp-border);
+    font-family: var(--ff-head);
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--sp-red);
+}
+
+.sb-clock i { font-size: 11px; animation: blink 1.2s ease-in-out infinite; }
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+
+/* Nav sidebar */
+.sb-nav { padding: 10px 10px; list-style: none; flex: 1; }
+.sb-nav li { margin-bottom: 2px; }
+
+.sb-nav-section {
+    padding: 12px 12px 4px;
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--sp-muted);
+}
+
+.sb-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--sp-muted2);
+    text-decoration: none;
+    transition: background .18s, color .18s;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sb-nav a:hover { background: rgba(255,255,255,.06); color: var(--sp-text); }
+.sb-nav a.is-active { background: rgba(232,39,75,.12); color: #fff; }
+.sb-nav a.is-active .sb-ico { color: var(--sp-red); }
+
+.sb-ico { font-size: 13px; width: 18px; text-align: center; flex-shrink: 0; }
+
+/* Sous-menu championnats */
+.sb-submenu {
+    list-style: none;
+    padding: 4px 0 4px 14px;
+    display: none;
+}
+
+.sb-submenu.is-open { display: block; }
+
+.sb-submenu li { margin-bottom: 1px; }
+
+.sb-submenu a {
+    padding: 8px 10px;
+    font-size: 12.5px;
+    border-radius: 8px;
+    color: var(--sp-muted2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: background .18s, color .18s;
+}
+
+.sb-submenu a:hover { background: rgba(255,255,255,.05); color: var(--sp-text); }
+
+.sb-submenu a.is-active {
+    background: rgba(232,39,75,.1);
+    color: #fff;
+}
+
+.sb-arrow {
+    margin-left: auto;
+    font-size: 10px;
+    transition: transform .2s;
+    color: var(--sp-muted);
+}
+
+.sb-nav li.sub-open > a .sb-arrow { transform: rotate(180deg); }
+
+/* ══════════════════════════════════════
+   MAIN
+══════════════════════════════════════ */
+.sports-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ══════════════════════════════════════
+   HERO
+══════════════════════════════════════ */
+.sports-hero {
+    background: linear-gradient(135deg, #0A0D18 0%, #0D1520 60%, #0A0A14 100%);
+    border-bottom: 1px solid var(--sp-border);
+    padding: 36px 40px 32px;
+    position: relative;
+    overflow: hidden;
+}
+
+.sports-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: 8%;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(59,130,246,.12) 0%, transparent 68%);
+    pointer-events: none;
+}
+
+.sports-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 5%;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(232,39,75,.08) 0%, transparent 68%);
+    pointer-events: none;
+}
+
+.hero-inner {
+    position: relative; z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--ff-head);
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--sp-blue);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.hero-eyebrow::before {
+    content: '';
+    width: 3px; height: 14px;
+    background: var(--sp-blue);
+    border-radius: 2px;
+}
+
+.hero-title {
+    font-family: var(--ff-head);
+    font-size: clamp(34px, 5vw, 54px);
+    letter-spacing: 2px;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.hero-title em { font-style: normal; color: var(--sp-red); }
+
+.hero-sub {
+    font-size: 13.5px;
+    color: var(--sp-muted2);
+    max-width: 460px;
+    line-height: 1.6;
+}
+
+/* Horloge hero */
+.hero-clock {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.hero-clock-time {
+    font-family: var(--ff-head);
+    font-size: 38px;
+    letter-spacing: 3px;
+    color: #fff;
+    line-height: 1;
+}
+
+.hero-clock-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--sp-muted);
+}
+
+/* ══════════════════════════════════════
+   TABS LIGUES
+══════════════════════════════════════ */
+.league-tabs {
+    background: var(--sp-bg2);
+    border-bottom: 1px solid var(--sp-border);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 32px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: 60px;
+    z-index: 40;
+}
+
+.league-tabs::-webkit-scrollbar { display: none; }
+
+.league-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 14px 16px;
+    font-family: var(--ff-body);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--sp-muted2);
+    white-space: nowrap;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+    flex-shrink: 0;
+}
+
+.league-tab:hover { color: var(--sp-text); }
+
+.league-tab.is-active {
+    color: #fff;
+    border-bottom-color: var(--sp-red);
+}
+
+.league-tab .flag { font-size: 15px; }
+
+/* ══════════════════════════════════════
+   CONTENU
+══════════════════════════════════════ */
+.sports-content {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* ══════════════════════════════════════
+   BANDEAU INFO (data)
+══════════════════════════════════════ */
+.info-band {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    background: rgba(59,130,246,.08);
+    border: 1px solid rgba(59,130,246,.2);
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #93C5FD;
+}
+
+.info-band i { color: var(--sp-blue); }
+
+/* ══════════════════════════════════════
+   SECTION TITRE
+══════════════════════════════════════ */
+.section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    gap: 12px;
+}
+
+.section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-label::before {
+    content: '';
+    width: 3px; height: 22px;
+    background: var(--sp-red);
+    border-radius: 2px;
+}
+
+.section-label h2 {
+    font-family: var(--ff-head);
+    font-size: 24px;
+    letter-spacing: 1.5px;
+    color: #fff;
+}
+
+/* ══════════════════════════════════════
+   GRAPHIQUE
+══════════════════════════════════════ */
+.chart-wrap {
+    background: var(--sp-bg3);
+    border: 1px solid var(--sp-border);
+    border-radius: 14px;
+    overflow: hidden;
+    padding: 20px;
+    text-align: center;
+}
+
+.chart-wrap img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+/* ══════════════════════════════════════
+   TABLEAU CLASSEMENT
+══════════════════════════════════════ */
+.ranking-card {
+    background: var(--sp-bg3);
+    border: 1px solid var(--sp-border);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.ranking-card__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: var(--sp-bg4);
+    border-bottom: 1px solid var(--sp-border);
+}
+
+.ranking-card__head h3 {
+    font-family: var(--ff-head);
+    font-size: 18px;
+    letter-spacing: 1.5px;
+    color: #fff;
+}
+
+.ranking-card__head .flag { font-size: 18px; }
+
+.ranking-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 640px;
+}
+
+.ranking-table thead th {
+    padding: 10px 14px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--sp-muted);
+    background: var(--sp-bg4);
+    border-bottom: 1px solid var(--sp-border);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.ranking-table thead th:nth-child(2) { text-align: left; }
+
+.ranking-table tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    color: var(--sp-text);
+    text-align: center;
+    vertical-align: middle;
+}
+
+.ranking-table tbody td:nth-child(2) { text-align: left; font-weight: 600; }
+
+.ranking-table tbody tr:last-child td { border-bottom: none; }
+
+.ranking-table tbody tr {
+    transition: background .15s;
+}
+
+.ranking-table tbody tr:hover { background: rgba(255,255,255,.03); }
+
+/* Zones colorées */
+.ranking-table tbody tr:nth-child(-n+4) td:first-child {
+    border-left: 3px solid #3B82F6;
+}
+
+.ranking-table tbody tr:nth-child(5) td:first-child,
+.ranking-table tbody tr:nth-child(6) td:first-child {
+    border-left: 3px solid #F5A623;
+}
+
+.ranking-table tbody tr:last-child td:first-child,
+.ranking-table tbody tr:nth-last-child(2) td:first-child,
+.ranking-table tbody tr:nth-last-child(3) td:first-child {
+    border-left: 3px solid var(--sp-red);
+}
+
+/* Badge points */
+.pts-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 24px;
+    background: rgba(59,130,246,.15);
+    border: 1px solid rgba(59,130,246,.25);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #93C5FD;
+}
+
+/* Position badge */
+.pos-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: rgba(255,255,255,.05);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sp-muted2);
+}
+
+.pos-1 { background: rgba(245,166,35,.2); color: #FDE68A; }
+.pos-2 { background: rgba(156,163,175,.15); color: #D1D5DB; }
+.pos-3 { background: rgba(180,120,60,.15); color: #D4A96A; }
+
+/* ══════════════════════════════════════
+   MATCHS CARDS
+══════════════════════════════════════ */
+.matches-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.matches-block {}
+
+.matches-block-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--ff-head);
+    font-size: 20px;
+    letter-spacing: 1.5px;
+    color: #fff;
+    margin-bottom: 14px;
+}
+
+.matches-block-title i { color: var(--sp-red); font-size: 15px; }
+
+.matches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.match-card {
+    background: var(--sp-bg3);
+    border: 1px solid var(--sp-border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+    cursor: default;
+}
+
+.match-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,.4);
+    border-color: rgba(255,255,255,.12);
+}
+
+.match-card__vs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.match-card__team {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--sp-text);
+    line-height: 1.3;
+}
+
+.match-card__sep {
+    font-family: var(--ff-head);
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--sp-red);
+    flex-shrink: 0;
+}
+
+.match-card__date {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 11.5px;
+    color: var(--sp-muted);
+    font-weight: 500;
+}
+
+.match-card__date i { color: var(--sp-gold); font-size: 10px; }
+
+/* ══════════════════════════════════════
+   RÉSULTATS CALENDRIER
+══════════════════════════════════════ */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.result-card {
+    background: var(--sp-bg3);
+    border: 1px solid var(--sp-border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    transition: transform .2s, border-color .2s;
+}
+
+.result-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255,255,255,.12);
+}
+
+.result-card__competition {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(232,39,75,.1);
+    border: 1px solid rgba(232,39,75,.2);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--sp-red);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 12px;
+}
+
+.result-card__match {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sp-text);
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.result-card__date {
+    font-size: 11.5px;
+    color: var(--sp-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ══════════════════════════════════════
+   ACTU SPORTS
+══════════════════════════════════════ */
+.actu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+}
+
+.actu-card {
+    background: var(--sp-bg3);
+    border: 1px solid var(--sp-border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform .22s, box-shadow .22s, border-color .22s;
+}
+
+.actu-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,.45);
+    border-color: rgba(255,255,255,.12);
+}
+
+.actu-card__thumb {
+    height: 170px;
+    overflow: hidden;
+    position: relative;
+}
+
+.actu-card__thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .32s;
+}
+
+.actu-card:hover .actu-card__thumb img { transform: scale(1.06); }
+
+.actu-card__body { padding: 14px 16px; }
+
+.actu-card__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sp-text);
+    line-height: 1.45;
+    margin-bottom: 8px;
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color .2s;
+}
+
+.actu-card__title:hover { color: var(--sp-red); }
+
+.actu-card__summary {
+    font-size: 12.5px;
+    color: var(--sp-muted2);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.actu-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--sp-border);
+}
+
+.actu-card__date {
+    font-size: 11px;
+    color: var(--sp-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.actu-card__link {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sp-red);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: gap .2s;
+}
+
+.actu-card__link:hover { gap: 7px; }
+
+/* ══════════════════════════════════════
+   ERREUR
+══════════════════════════════════════ */
+.sports-error {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--sp-bg3);
+    border: 1px solid var(--sp-border);
+    border-radius: 16px;
+}
+
+.sports-error i {
+    font-size: 48px;
+    color: var(--sp-muted);
+    margin-bottom: 16px;
+    display: block;
+}
+
+.sports-error h3 {
+    font-family: var(--ff-head);
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--sp-muted2);
+    margin-bottom: 8px;
+}
+
+.sports-error p { font-size: 13.5px; color: var(--sp-muted); }
+
+/* ══════════════════════════════════════
+   LÉGENDE
+══════════════════════════════════════ */
+.ranking-legend {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 12px 20px;
+    border-top: 1px solid var(--sp-border);
+    font-size: 11.5px;
+    color: var(--sp-muted);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media (max-width: 900px) {
+    .sports-sidebar { display: none; }
+    .sports-hero    { padding: 24px 20px; }
+    .hero-clock     { display: none; }
+    .sports-content { padding: 20px; }
+    .league-tabs    { padding: 0 16px; }
+}
+
+@media (max-width: 600px) {
+    .sports-hero    { padding: 18px 16px; }
+    .sports-content { padding: 14px; gap: 20px; }
+    .matches-grid   { grid-template-columns: 1fr 1fr; }
+    .results-grid   { grid-template-columns: 1fr; }
+    .actu-grid      { grid-template-columns: 1fr; }
+    .ranking-table  { font-size: 12px; }
+    .ranking-table thead th,
+    .ranking-table tbody td { padding: 9px 10px; }
+}
+
+@media (max-width: 400px) {
+    .matches-grid { grid-template-columns: 1fr; }
+}
+
+</style>
+
+<!-- ══ PAGE STRUCTURE ══ -->
+<div class="sports-page">
+
+    <!-- ══════════ SIDEBAR ══════════ -->
+    <aside class="sports-sidebar">
+
+        <div class="sb-head">
+            <span class="sb-head-title">SPORTS</span>
+        </div>
+
+        <!-- Horloge en direct -->
+        <div class="sb-clock">
+            <i class="fas fa-circle"></i>
+            <span id="horloge">--:--:--</span>
+        </div>
+
+        <ul class="sb-nav">
+            <div class="sb-nav-section">Championnats</div>
+
+            <!-- Classements avec sous-menu -->
+            <li id="sub-classement">
+                <a href="#" onclick="toggleSub('sub-classement'); return false;">
+                    <i class="fas fa-trophy sb-ico" style="color:var(--sp-gold)"></i>
+                    Classements
+                    <i class="fas fa-chevron-down sb-arrow"></i>
+                </a>
+                <ul class="sb-submenu" id="submenu-classement">
+                    <li>
+                        <a href="/sports?section=classement&championnat=france"
+                           class="{% if request.GET.championnat == 'france' %} {{'is-active'}}{% endif %}">
+                            🇫🇷 Ligue 1
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/sports?section=classement&championnat=espagne"
+                           class="{% if request.GET.championnat == 'espagne' %} {{'is-active'}}{% endif %}">
+                            🇪🇸 La Liga
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/sports?section=classement&championnat=italie"
+                           class="{% if request.GET.championnat == 'italie' %} {{'is-active'}}{% endif %}">
+                            🇮🇹 Serie A
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/sports?section=classement&championnat=allemagne"
+                           class="{% if request.GET.championnat == 'allemagne' %} {{'is-active'}}{% endif %}">
+                            🇩🇪 Bundesliga
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/sports?section=classement&championnat=angleterre"
+                           class="{% if request.GET.championnat == 'angleterre' %} {{'is-active'}}{% endif %}">
+                            🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+<!--            <div class="sb-nav-section">Navigation</div>-->
+
+            <li>
+                <a href="{% url 'ActuWebApp:match_encours' %}">
+                    <i class="fas fa-broadcast-tower sb-ico" style="color:var(--sp-red)"></i>
+                    Score en direct
+                </a>
+            </li>
+            <li>
+                <a href="/sports?section=calendrier-matchs">
+                    <i class="fas fa-calendar-days sb-ico" style="color:var(--sp-blue)"></i>
+                    Calendrier
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'ActuWebApp:cl_buteurs' %}">
+                    <i class="fas fa-ranking-star sb-ico" style="color:var(--sp-gold)"></i>
+                    Top Buteurs
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'ActuWebApp:sports_view' %}">
+                    <i class="fas fa-newspaper sb-ico"></i>
+                    Dernières news
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'ActuWebApp:match_termine' %}">
+                    <i class="fas fa-futbol sb-ico" style="color:var(--sp-green)"></i>
+                    Résultats
+                </a>
+            </li>
+        </ul>
+
+    </aside>
+
+    <!-- ══════════ MAIN ══════════ -->
+    <div class="sports-main">
+
+        <!-- HERO -->
+        <div class="sports-hero">
+            <div class="hero-inner">
+                <div>
+                    <div class="hero-eyebrow">
+                        <i class="fas fa-futbol"></i> Sports
+                    </div>
+                    <h1 class="hero-title">FOOTBALL <em>LIVE</em></h1>
+                    <p class="hero-sub">
+                        Classements, résultats, calendriers — les 5 grands championnats européens en temps réel.
+                    </p>
+                </div>
+                <div class="hero-clock">
+                    <div class="hero-clock-time" id="horloge-hero">--:--</div>
+                    <div class="hero-clock-label">Heure locale</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABS LIGUES -->
+        <div class="league-tabs">
+            <a href="/sports" class="league-tab {% if not request.GET.championnat and not request.GET.section %}{{'is-active'}} {% endif %}">
+                <i class="fas fa-globe"></i> Tout
+            </a>
+            <a href="/sports?section=classement&championnat=france"
+               class="league-tab {% if request.GET.championnat == 'france' %} {{'is-active'}}{% endif %}">
+                <span class="flag">🇫🇷</span> Ligue 1
+            </a>
+            <a href="/sports?section=classement&championnat=espagne"
+               class="league-tab {% if request.GET.championnat == 'espagne' %} {{'is-active'}}{% endif %}">
+                <span class="flag">🇪🇸</span> La Liga
+            </a>
+            <a href="/sports?section=classement&championnat=italie"
+               class="league-tab {% if request.GET.championnat == 'italie' %} {{'is-active'}}{% endif %}">
+                <span class="flag">🇮🇹</span> Serie A
+            </a>
+            <a href="/sports?section=classement&championnat=allemagne"
+               class="league-tab {% if request.GET.championnat == 'allemagne' %} {{'is-active'}}{% endif %}">
+                <span class="flag">🇩🇪</span> Bundesliga
+            </a>
+            <a href="/sports?section=classement&championnat=angleterre"
+               class="league-tab {% if request.GET.championnat == 'angleterre' %} {{'is-active'}}{% endif %}">
+                <span class="flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span> Premier League
+            </a>
+            <a href="{% url 'ActuWebApp:match_encours' %}" class="league-tab">
+                <i class="fas fa-broadcast-tower" style="color:var(--sp-red)"></i> Direct
+            </a>
+             <a href="{% url 'ActuWebApp:cl_buteurs' %}" class="league-tab">
+                <i class="fas fa-ranking-star" style="color:var(--sp-red)"></i> Classement Buteurs
+            </a>
+               <a href="/sports?section=calendrier-matchs" class="league-tab">
+                <i class="fas fa-calendar-days" style="color:var(--sp-red)"></i> Calendrier
+            </a>   <a href="{% url 'ActuWebApp:match_termine' %}" class="league-tab">
+                <i class="fas fa-futbol" style="color:var(--sp-red)"></i> Résultats
+            </a>
+        </div>
+
+        <!-- CONTENU -->
+        <div class="sports-content">
+
+            <!-- Bandeau info -->
+            {% if data %}
+            <div class="info-band">
+                <i class="fas fa-circle-info"></i>
+                <strong>{{ data }}</strong>
+            </div>
+            {% endif %}
+
+            <!-- ══ MACRO CLASSEMENT (évite la répétition) ══ -->
+
+
+            <!-- ══ RENDU CONDITIONNEL PAR CHAMPIONNAT ══ -->
+
+            {% if classementfrance %}
+                {% include "classement.html" with rows=classementfrance flag='🇫🇷' league_name='Ligue 1' matches_auj=match_ligue1_auj matches_dem=match_ligue1_dem %}
+
+            {% elif classementespagne %}
+                {% include "classement.html" with rows=classementfrance flag='ES' league_name='Liga' matches_auj=match_esp_auj matches_dem=match_esp_dem %}
+
+
+            {% elif classementangleterre %}
+                {% include "classement.html" with rows=classementfrance flag='GB' league_name='Premier League' matches_auj=match_ang_auj matches_dem=match_ang_dem %}
+
+
+            {% elif classementitalie %}
+                {% include "classement.html" with rows=classementfrance flag='IT' league_name='Serie A' matches_auj=match_ita_auj matches_dem=match_ita_dem %}
+
+            {% elif classementallemagne %}
+                {% include "classement.html" with rows=classementallemagne flag='DE' league_name='Bundesliga' matches_auj=match_all_auj matches_dem=match_all_dem %}
+
+
+            <!-- ══ CALENDRIER / RÉSULTATS ══ -->
+            {% elif resultat %}
+            <div>
+                <div class="section-head">
+                    <div class="section-label">
+                        <h2>📅 Calendrier des Matchs</h2>
+                    </div>
+                </div>
+                <div class="results-grid">
+                    {% for result in resultat %}
+                    <div class="result-card">
+                        <div class="result-card__competition">
+                            <i class="fas fa-trophy"></i>
+                            {{ result.competition }}
+                        </div>
+                        <div class="result-card__match">{{ result.match }}</div>
+                        <div class="result-card__date">
+                            <i class="fas fa-calendar"></i>
+                            {{ result.date }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ══ ACTUALITÉS SPORTS ══ -->
+            {% elif sportsactu %}
+            <div>
+                <div class="section-head">
+                    <div class="section-label">
+                        <h2>📰 Actualités Sports</h2>
+                    </div>
+                </div>
+                <div class="actu-grid">
+                    {% for sport in sportsactu %}
+                    <article class="actu-card">
+                        <div class="actu-card__thumb">
+                            <img src="{{ sport.image }}" alt="{{ sport.title }}" loading="lazy">
+                        </div>
+                        <div class="actu-card__body">
+                            <a href="{{ sport.link }}" target="_blank" rel="noopener"
+                               class="actu-card__title">{{ sport.title }}</a>
+                            <p class="actu-card__summary">{{ sport.summary | safe }}</p>
+                            <div class="actu-card__footer">
+                                <time class="actu-card__date">
+                                    <i class="fas fa-clock"></i>
+                                    {{ sport.published }}
+                                </time>
+                                <a href="{% url 'ActuWebApp:sport_detail'  sport.published_at.year sport.published_at|date:'m' sport.published_at|date:'d' sport.slug %}" rel="noopener"
+                                   class="actu-card__link">
+                                    Lire <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ══ ERREUR ══ -->
+            {% else %}
+            <div class="sports-error">
+                <i class="fas fa-satellite-dish"></i>
+                <h3>Aucune donnée disponible</h3>
+                <p>Vérifiez votre connexion ou sélectionnez un championnat.</p>
+            </div>
+            {% endif %}
+
+        </div><!-- /sports-content -->
+    </div><!-- /sports-main -->
+</div><!-- /sports-page -->
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+
+    /* ── Horloge en direct ── */
+    function updateClock() {
+        const now  = new Date();
+        const hh   = String(now.getHours()).padStart(2,'0');
+        const mm   = String(now.getMinutes()).padStart(2,'0');
+        const ss   = String(now.getSeconds()).padStart(2,'0');
+        const full = `${hh}:${mm}:${ss}`;
+        const short= `${hh}:${mm}`;
+
+        const sb   = document.getElementById('horloge');
+        const hero = document.getElementById('horloge-hero');
+        if (sb)   sb.textContent   = full;
+        if (hero) hero.textContent = short;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    /* ── Sous-menu sidebar ── */
+    window.toggleSub = function(liId) {
+        const li  = document.getElementById(liId);
+        const sub = document.getElementById('submenu-' + liId.replace('sub-',''));
+        if (!li || !sub) return;
+        const open = sub.classList.toggle('is-open');
+        li.classList.toggle('sub-open', open);
+    };
+
+    /* ── Auto-ouvrir le sous-menu si un lien enfant est actif ── */
+    const activeSub = document.querySelector('.sb-submenu a.is-active');
+    if (activeSub) {
+        const subList = activeSub.closest('.sb-submenu');
+        const liParent = subList?.closest('li');
+        if (subList && liParent) {
+            subList.classList.add('is-open');
+            liParent.classList.add('sub-open');
+        }
+    }
+
+    /* ── Lazy images fade-in ── */
+    if ('IntersectionObserver' in window) {
+        document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+            img.style.opacity = '0';
+            img.style.transition = 'opacity .3s';
+            const io = new IntersectionObserver(([e]) => {
+                if (!e.isIntersecting) return;
+                img.addEventListener('load', () => img.style.opacity = '1');
+                if (img.complete) img.style.opacity = '1';
+                io.disconnect();
+            }, { rootMargin: '80px' });
+            io.observe(img);
+        });
+    }
+
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,333 @@
+{% extends 'base.html' %}
+
+{% block title %}Classement des buteurs{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ══════════════════════════════════════
+       CLASSEMENT DES BUTEURS
+    ══════════════════════════════════════ */
+    .buteurs-page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 48px 20px 80px;
+    }
+
+    .buteurs-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .buteurs-header h1 {
+        font-size: 40px;
+        margin-bottom: 8px;
+    }
+
+    .buteurs-header p {
+        color: #64748B;
+        font-family: 'Outfit', sans-serif;
+        font-size: 14px;
+    }
+
+    /* Carte "Soulier d'Or" mise en avant */
+    .soulier-or {
+        background: linear-gradient(135deg, #1C1C28, #0C0C12);
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 48px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    }
+
+    .soulier-or h2 {
+        text-align: center;
+        font-size: 26px;
+        margin-bottom: 22px;
+    }
+
+    /* Une section par championnat */
+    .ligue-section {
+        background: linear-gradient(135deg, #1C1C28, #0C0C12);
+        border: 1px solid #ECECF2;
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 28px;
+        box-shadow: 0 4px 16px rgba(0,0,0,.05);
+    }
+
+    .ligue-section h3 {
+        font-size: 22px;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #F0F0F5;
+
+    }
+
+    /* Table commune */
+    table.buteurs-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    table.buteurs-table thead th {
+        text-align: left;
+        font-size: 12.5px;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: #94A3B8;
+        font-weight: 600;
+        padding: 10px 14px;
+        border-bottom: 2px solid #F0F0F5;
+    }
+
+    .soulier-or table.buteurs-table thead th {
+        color: rgba(255,255,255,.55);
+        border-bottom-color: rgba(255,255,255,.1);
+    }
+
+    table.buteurs-table td {
+        padding: 14px;
+        font-size: 14.5px;
+        border-bottom: 1px solid #F5F5FA;
+    }
+
+    .soulier-or table.buteurs-table td {
+        color: #E2E2EE;
+        border-bottom-color: rgba(255,255,255,.06);
+    }
+
+    table.buteurs-table tbody tr:last-child td { border-bottom: none; }
+
+    table.buteurs-table tbody tr:hover td {
+        background: #FAFAFD;
+    }
+
+    .soulier-or table.buteurs-table tbody tr:hover td {
+        background: rgba(255,255,255,.04);
+    }
+
+    .col-rang {
+        width: 46px;
+        text-align: center;
+        font-weight: 700;
+        color: #F5A623;
+    }
+
+    .col-buts {
+        text-align: right;
+        font-weight: 700;
+        color: #E8274B;
+        white-space: nowrap;
+    }
+
+    .col-pays {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pays-vide {
+        text-align: center;
+        padding: 24px;
+        color: #94A3B8;
+        font-size: 14px;
+        font-style: italic;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+        .buteurs-page { padding: 32px 14px 60px; }
+        .buteurs-header h1 { font-size: 30px; }
+        .ligue-section, .soulier-or { padding: 18px; }
+        table.buteurs-table th, table.buteurs-table td { padding: 10px 8px; font-size: 13px; }
+    }
+</style>
+
+<div class="buteurs-page">
+
+    <div class="buteurs-header">
+        <h1>Classement des buteurs</h1>
+        <p>Le top buteur de chaque grand championnat européen</p>
+    </div>
+
+    <!-- 🥇 Soulier d'Or -->
+    <div class="soulier-or">
+        <h2>🥇 Soulier d'Or</h2>
+        <table class="buteurs-table">
+            <thead>
+                <tr>
+                    <th>Pays</th>
+                    <th>Joueur</th>
+                    <th class="col-buts">Buts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scorer in scorer_europe %}
+                {% if scorer.pays in pays_drapeaux %}
+                <tr>
+                    <td>
+                        <div class="col-pays">
+                            <span class="flag">{{ pays_drapeaux|dictsort:scorer.pays }}</span>
+                            {{ scorer.pays }}
+                        </div>
+                    </td>
+                    <td>{{ scorer.joueur }}</td>
+                    <td class="col-buts">{{ scorer.buts }} buts</td>
+                </tr>
+                {% endif %}
+                {% empty %}
+                <tr><td colspan="3" class="pays-vide">Aucun résultat disponible.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Premier League -->
+    <div class="ligue-section">
+        <h3>Premier League</h3>
+
+        <table class="buteurs-table">
+            <thead>
+                <tr>
+                    <th class="col-rang">#</th>
+                    <th>Joueur</th>
+                    <th>Club</th>
+                    <th class="col-buts">Buts</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td class="col-rang">1</td>
+                    <td>Pierrot</td>
+                    <td>Barca</td>
+                    <td class="col-buts">50</td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <p class="pays-vide">Aucun résultat disponible.</p>
+
+    </div>
+
+    <!-- Serie A -->
+    <div class="ligue-section">
+        <h3>Serie A</h3>
+        {% if buteurs_sa %}
+        <table class="buteurs-table">
+            <thead>
+                <tr>
+                    <th class="col-rang">#</th>
+                    <th>Joueur</th>
+                    <th>Club</th>
+                    <th class="col-buts">Buts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for joueur in buteurs_sa %}
+                <tr>
+                    <td class="col-rang">{{ forloop.counter }}</td>
+                    <td>{{ joueur.player_name }}</td>
+                    <td>{{ joueur.team_name }}</td>
+                    <td class="col-buts">{{ joueur.goals }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="pays-vide">Aucun résultat disponible.</p>
+        {% endif %}
+    </div>
+
+    <!-- La Liga -->
+    <div class="ligue-section">
+        <h3>La Liga</h3>
+        {% if buteurs_pd %}
+        <table class="buteurs-table">
+            <thead>
+                <tr>
+                    <th class="col-rang">#</th>
+                    <th>Joueur</th>
+                    <th>Club</th>
+                    <th class="col-buts">Buts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for joueur in buteurs_pd %}
+                <tr>
+                    <td class="col-rang">{{ forloop.counter }}</td>
+                    <td>{{ joueur.player_name }}</td>
+                    <td>{{ joueur.team_name }}</td>
+                    <td class="col-buts">{{ joueur.goals }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="pays-vide">Aucun résultat disponible.</p>
+        {% endif %}
+    </div>
+
+    <!-- Ligue 1 -->
+    <div class="ligue-section">
+        <h3>Ligue 1</h3>
+        {% if buteurs_fl1 %}
+        <table class="buteurs-table">
+            <thead>
+                <tr>
+                    <th class="col-rang">#</th>
+                    <th>Joueur</th>
+                    <th>Club</th>
+                    <th class="col-buts">Buts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for joueur in buteurs_fl1 %}
+                <tr>
+                    <td class="col-rang">{{ forloop.counter }}</td>
+                    <td>{{ joueur.player_name }}</td>
+                    <td>{{ joueur.team_name }}</td>
+                    <td class="col-buts">{{ joueur.goals }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="pays-vide">Aucun résultat disponible.</p>
+        {% endif %}
+    </div>
+
+    <!-- Bundesliga -->
+    <div class="ligue-section">
+        <h3>Bundesliga</h3>
+        {% if buteurs_bl1 %}
+        <table class="buteurs-table">
+            <thead>
+                <tr>
+                    <th class="col-rang">#</th>
+                    <th>Joueur</th>
+                    <th>Club</th>
+                    <th class="col-buts">Buts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for joueur in buteurs_bl1 %}
+                <tr>
+                    <td class="col-rang">{{ forloop.counter }}</td>
+                    <td>{{ joueur.player_name }}</td>
+                    <td>{{ joueur.team_name }}</td>
+                    <td class="col-buts">{{ joueur.goals }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="pays-vide">Aucun résultat disponible.</p>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

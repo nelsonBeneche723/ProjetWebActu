@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}⚽ Matchs Terminés{% endblock %}
+
+{% block content %}
+
+<style>
+/* Styles généraux */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+/* Desktop */
+.matchs-termines {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.matchs-termines h2 {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.match-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.match-container section {
+  flex: 1 1 calc(50% - 15px);
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.match-container section:hover {
+  transform: translateY(-5px);
+}
+
+.match-container section h3 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.match-item {
+  margin-bottom: 20px;
+}
+
+.match-item p {
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+.match-item p:first-child {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .matchs-termines {
+    padding: 20px;
+  }
+
+  .matchs-termines h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .match-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .match-container section {
+    flex-basis: auto;
+    padding: 15px;
+  }
+
+  .match-container section h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .match-item p {
+    font-size: 14px;
+  }
+
+  .match-item p:first-child {
+    font-size: 16px;
+  }
+}
+</style>
+
+<div class="matchs-termines">
+    <h3 style="text-align:center; margin-bottom:20px;">📊 Résultats des Matchs Terminés</h3>
+<div class="match-container">
+    <!-- Premier League -->
+    <section>
+        <h3 style="color:black;">🏴 Premier League</h3>
+        {% if resultat_tpl %}
+            {% for match in resultat_tpl %}
+            <div class="match-item">
+                <p style="color:black;"><strong>{{ match.home }}</strong> {{ match.score }} <strong>{{ match.away }}</strong></p>
+                <p style="color:black;">Match Terminé</p>
+                <p style="color:black;">🏆 {{ match.competition }} </p>
+                <p style="color:black;">📅 {{ match.date }} </p>
+                <p style="color:black;">{{match.heure}} Heure Port-au-Prince</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align:center; color:black;">Aucun résultat disponible.</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h3 style="color:black;">🇪🇸 La Liga</h3>
+        {% if resultat_tlig %}
+            {% for match in resultat_tlig %}
+            <div class="match-item">
+                <p style="color:black;"><strong>{{ match.home }}</strong> {{ match.score }} <strong>{{ match.away }}</strong></p>
+                <p style="color:black;">Match Terminé</p>
+                <p style="color:black;">🏆 {{ match.competition }} </p>
+                <p style="color:black;">📅 {{ match.date }} </p>
+                <p style="color:black;">{{match.heure}} Heure Port-au-Prince</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align:center;color:black;">Aucun résultat disponible.</p>
+        {% endif %}
+    </section>
+
+    <!-- Serie A -->
+    <section>
+        <h3 style=color:black;">🇮🇹 Serie A</h3>
+        {% if resultat_tsa %}
+            {% for match in resultat_tsa %}
+            <div class="match-item">
+                <p style="color:black;"><strong>{{ match.home }}</strong> {{ match.score }} <strong>{{ match.away }}</strong></p>
+                <p style="color:black;">Match Terminé</p>
+                <p style="color:black;">🏆 {{ match.competition }} </p>
+                <p style="color:black;">📅 {{ match.date }} </p>
+                <p style="color:black;">{{match.heure}} Heure Port-au-Prince</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align:center; color:black;">Aucun résultat disponible.</p>
+        {% endif %}
+    </section>
+
+    <!-- Ligue 1 -->
+    <section>
+        <h3 style="color:black;">🇫🇷 Ligue 1</h3>
+        {% if resultat_tlig1 %}
+            {% for match in resultat_tlig1 %}
+            <div class="match-item">
+                <p style="color:black;"><strong>{{ match.home }}</strong> {{ match.score }} <strong>{{ match.away }}</strong></p>
+                <p style="color:black;">Match Terminé</p>
+                <p style="color:black;">🏆 {{ match.competition }} </p>
+                 <p style="color:black;">📅 {{ match.date }} </p>
+                <p style="color:black;">{{match.heure}} Heure Port-au-Prince</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align:center;color:black;">Aucun résultat disponible.</p>
+        {% endif %}
+    </section>
+
+<!--     Bundesliga -->
+    <section>
+        <h3 style="color:black;">🇩🇪 Bundesliga</h3>
+        {% if resultat_tligb %}
+            {% for match in resultat_tligb %}
+            <div class="match-item">
+                <p style="color:black;"><strong>{{ match.home }}</strong> {{ match.score }} <strong>{{ match.away }}</strong></p>
+                <p style="color:black;">Match Terminé</p>
+                <p style="color:black;">🏆 {{ match.competition }} </p>
+                <p style="color:black;">📅 {{ match.date }} </p>
+                <p style="color:black;">{{match.heure}} Heure Port-au-Prince</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align:center;color:black;">Aucun résultat disponible.</p>
+        {% endif %}
+    </section>
+</div>
+</div>
+{% endblock %}
+

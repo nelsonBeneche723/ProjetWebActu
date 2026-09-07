@@ -1,0 +1,718 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ musique.titre }} - Lecture {% endblock %}
+
+{% block link %}
+<link rel="icon" href="{% static 'images/music.ico' %}" type="image/x-icon">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<style>
+    .np-page {
+        background: #0b0b12;
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+        min-height: 100vh;
+        padding-bottom: 40px;
+    }
+
+    /* ===== NOW PLAYING HERO (style Boomplay) ===== */
+    .np-hero {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 24px 20px 10px;
+        text-align: center;
+    }
+
+    .np-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    .np-topbar a {
+        color: #fff;
+        font-size: 18px;
+        text-decoration: none;
+    }
+
+    .np-topbar span {
+        font-size: 13px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #999;
+    }
+
+    .np-vinyl-wrap {
+        position: relative;
+        width: 260px;
+        height: 260px;
+        margin: 0 auto 28px;
+    }
+
+    .np-vinyl {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        overflow: hidden;
+        box-shadow: 0 20px 45px rgba(0,0,0,.55);
+        animation: np-spin 14s linear infinite;
+        animation-play-state: paused;
+        border: 6px solid #1a1a1a;
+    }
+
+    .np-vinyl.is-playing { animation-play-state: running; }
+
+    .np-vinyl img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .np-vinyl::after {
+        content: '';
+        position: absolute;
+        top: 50%; left: 50%;
+        width: 22px; height: 22px;
+        background: #0b0b12;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        border: 3px solid #333;
+    }
+
+    @keyframes np-spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+    }
+
+    .np-title { font-size: 1.4rem; font-weight: 700; margin: 4px 0 2px; }
+    .np-artist { font-size: .95rem; color: #9a9a9a; margin: 0 0 20px; }
+
+    /* ===== Progress bar ===== */
+    .np-progress-wrap { padding: 0 6px; margin-bottom: 8px; }
+
+    .np-progress-track {
+        position: relative;
+        height: 5px;
+        background: rgba(255,255,255,.12);
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .np-progress-fill {
+        position: absolute;
+        top: 0; left: 0; height: 100%;
+        width: 0%;
+        background: var(--sp-red, #e8274b);
+        border-radius: 10px;
+    }
+
+    .np-progress-thumb {
+        position: absolute;
+        top: 50%; left: 0%;
+        width: 13px; height: 13px;
+        background: #fff;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 1px 4px rgba(0,0,0,.4);
+    }
+
+    .np-progress-input {
+        position: absolute;
+        inset: -8px 0;
+        width: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .np-times {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11.5px;
+        color: #888;
+        margin-top: 6px;
+    }
+
+    /* ===== Controls ===== */
+    .np-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        margin: 22px 0 18px;
+    }
+
+    .np-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        font-size: 20px;
+        transition: color .15s, transform .15s;
+    }
+
+    .np-btn:hover { color: var(--sp-red, #e8274b); }
+
+    .np-btn.is-toggled { color: var(--cyan, #00c4c4); }
+
+    .np-btn-play {
+        width: 62px; height: 62px;
+        border-radius: 50%;
+        background: var(--sp-red, #e8274b);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 8px 20px rgba(232,39,75,.4);
+    }
+
+    .np-btn-play:hover { color: #fff; transform: scale(1.05); }
+
+    .np-secondary-actions {
+        display: flex;
+        justify-content: center;
+        gap: 34px;
+        font-size: 16px;
+        color: #999;
+        margin-bottom: 6px;
+    }
+
+    .np-secondary-actions i { cursor: pointer; transition: color .15s; }
+    .np-secondary-actions i:hover { color: #fff; }
+    .np-secondary-actions i.is-liked { color: var(--sp-red, #e8274b); }
+
+    /* Fallback natif caché (au cas où JS échoue) */
+    .np-native-audio { display: none; }
+
+    /* ===== Lyrics ===== */
+    .lyrics-box {
+        max-width: 480px;
+        margin: 26px auto 0;
+        background: #15151f;
+        padding: 20px;
+        border-left: 4px solid var(--sp-red, #e8274b);
+        border-radius: 10px;
+    }
+    .lyrics-box h3 { color: var(--sp-red, #e8274b); margin-bottom: 10px; font-size: 1rem; }
+    .lyrics-content pre {
+        white-space: pre-wrap;
+        line-height: 1.7;
+        font-family: 'Segoe UI', sans-serif;
+        color: #ddd;
+        font-size: .92rem;
+        margin: 0;
+    }
+    .lyrics-content {
+        max-height:320px;
+        overflow:auto;
+        padding-right:6px;
+    }
+     .lyrics-content::-webkit-scrollbar {width:6px;}
+     .lyrics-content::-webkit-scrollbar-thumb {background:#333; border-radius:10px;}
+     .lyrics-content::-webkit-scrollbar-track {background:transparent;}
+
+    /* ===== Recommandations (cartes horizontales, style Boomplay) ===== */
+    .recommendations, .music-list {
+        max-width: 700px;
+        margin: 34px auto 0;
+        padding: 0 20px;
+    }
+    .recommendations h2, .music-list h2 {
+        font-size: 1.1rem;
+        margin-bottom: 14px;
+        color: #fff;
+    }
+
+    .recommendation-list {
+        display: flex;
+        gap: 14px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        scrollbar-width: none;
+    }
+    .recommendation-list::-webkit-scrollbar { display: none; }
+
+    .album-item {
+        flex: 0 0 120px;
+        text-align: left;
+    }
+    .album-item a { text-decoration: none; }
+    .album-cover {
+        height: 120px;
+        width: 120px;
+        background-size: cover;
+        background-position: center;
+        border-radius: 12px;
+        margin-bottom: 8px;
+    }
+    .song-title { font-size: .88rem; font-weight: 700; color: #fff; margin: 0; }
+    .song-artist { font-size: .78rem; color: #999; margin: 2px 0 0; }
+
+    .song-item {
+        display: flex;
+        align-items: center;
+        background-color: #15151f;
+        padding: 10px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        transition: background .2s;
+    }
+    .song-item:hover { background-color: #1e1e2c; }
+    .song-item a { display: flex; flex: 1; text-decoration: none; color: inherit; align-items: center; }
+    .song-item .album-cover { width: 56px; height: 56px; margin: 0 14px 0 0; flex-shrink: 0; }
+    .song-info { flex-grow: 1; }
+    .song-actions { display: flex; align-items: center; gap: 12px; font-size: 1rem; color: #999; }
+    .song-actions i { cursor: pointer; }
+    .song-actions i:hover { color: #fff; }
+
+    /* ===== Commentaires ===== */
+    .comments-section { max-width: 700px; margin: 34px auto 0; padding: 0 20px; }
+    .comment-form {
+        background-color: #15151f;
+        border: 1px solid #26263a;
+        border-radius: 10px;
+        padding: 18px;
+        margin-bottom: 20px;
+    }
+    .comment-form label { display: block; font-weight: 700; margin-bottom: 8px; color: #fff; }
+    .comment-form textarea {
+        width: 100%;
+        padding: 10px;
+        font-size: 15px;
+        border: 1px solid #333;
+        border-radius: 8px;
+        resize: vertical;
+        background: #0b0b12;
+        color: #fff;
+    }
+    .comment-form button {
+        display: block;
+        width: 100%;
+        margin-top: 10px;
+        padding: 10px;
+        font-size: 15px;
+        background-color: var(--sp-red, #e8274b);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .comment-form button:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* Message de confirmation : visible uniquement quand il a du contenu */
+    #commentMessage:empty { display: none; }
+    #commentMessage:not(:empty) {
+        display: block;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-weight: 500;
+        margin-top: 10px;
+        text-align: center;
+    }
+    #commentMessage.is-error {
+        background: linear-gradient(135deg, #b91c1c, #e8274b);
+    }
+
+    .comments-list { list-style: none; padding: 0; margin: 20px 0; }
+    .commentaire {
+        background-color: #15151f;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 14px;
+    }
+    .commentaire strong { display: block; margin-bottom: 6px; color: #fff; }
+    .commentaire p { line-height: 1.5; color: #ddd; margin: 0; }
+
+    .back-link { display: block; text-align: center; color: #999; margin-top: 24px; text-decoration: none; }
+    .back-link:hover { color: #fff; }
+
+    @media (max-width: 480px) {
+        .np-vinyl-wrap { width: 220px; height: 220px; }
+    }
+    .np-welcome {
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+        max-width:480px;
+        margin:0 auto;
+        padding-top:16px;
+    }
+    .np-welcome-avatar {
+        width:32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink:0;
+        background: #222;
+    }
+    .np-welcome-text {
+        color: #999;
+        font-size: 13px;
+        margin:0;
+    }
+
+    .np-add-playlist-wrap{position:relative;}
+
+    /* ===== Dropdown "Ajouter à une playlist" ===== */
+    .np-playlist-menu {
+        position: absolute;
+        bottom: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 60;
+    }
+    .np-dropdown {
+        width: 220px;
+        background: #15151f;
+        border: 1px solid #26263a;
+        border-radius: 12px;
+        padding: 10px;
+        box-shadow: 0 14px 34px rgba(0,0,0,.5);
+        animation: np-dropdown-in .15s ease-out;
+    }
+    @keyframes np-dropdown-in {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .np-dropdown-title {
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: #888;
+        margin: 2px 6px 8px;
+        text-align: left;
+    }
+    .np-dropdown-list { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow-y: auto; }
+    .np-dropdown-item {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: none;
+        border: none;
+        color: #ddd;
+        font-size: 13.5px;
+        text-align: left;
+        padding: 9px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background .15s, color .15s;
+    }
+    .np-dropdown-item i { color: var(--cyan, #00c4c4); width: 16px; }
+    .np-dropdown-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .np-dropdown-empty {
+        font-size: 12.5px;
+        color: #888;
+        padding: 10px 8px;
+        text-align: left;
+        font-style: italic;
+    }
+    .np-dropdown-confirm {
+        font-size: 13px;
+        color: #4ade80;
+        text-align: center;
+        margin: 4px;
+        padding: 6px 4px;
+    }
+</style>
+
+<div class="np-welcome">
+    <img src="{{request.user.profil.get_avatar_url}}" alt="{{request.user.username}}" class="np-welcome-avatar">
+    {% if request.user.is_authenticated %}
+        <p class="np-welcome-text">Bienvenue, {{ request.user.username }}</p>
+    {% endif %}
+</div>
+
+    <!-- 🎵 NOW PLAYING -->
+    <div class="np-hero">
+        <div class="np-topbar">
+            <a href="{% url 'ActuWebApp:aff_mus' %}"><i class="fas fa-chevron-left"></i></a>
+            <span>Lecture en cours</span>
+            <a href="#"><i class="fas fa-ellipsis-v"></i></a>
+        </div>
+
+        <div class="np-vinyl-wrap">
+            <div class="np-vinyl" id="np-vinyl">
+                <img src="{{ musique.image_url }}" alt="Pochette {{ musique.titre }}">
+            </div>
+        </div>
+
+        <h2 class="np-title">{{ musique.titre }}</h2>
+        <p class="np-artist">{{ musique.artiste }}</p>
+
+        <audio id="np-audio" class="np-native-audio" src="{{musique.audio_url}}"></audio>
+<!--        <button onclick="changerMorceau('{{musique.audio_url}},{{musique.slug}}')">Lancer la lecture..</button>-->
+
+        <div class="np-progress-wrap">
+            <div class="np-progress-track" id="np-progress-track">
+                <div class="np-progress-fill" id="np-progress-fill"></div>
+                <div class="np-progress-thumb" id="np-progress-thumb"></div>
+                <input type="range" class="np-progress-input" id="np-progress-input" min="0" max="100" value="0">
+            </div>
+            <div class="np-times">
+                <span id="np-current-time">0:00</span>
+                <span id="np-duration">0:00</span>
+            </div>
+        </div>
+
+        <div class="np-controls">
+            <button class="np-btn" id="np-shuffle" title="Aléatoire"><i class="fas fa-shuffle"></i></button>
+            <button class="np-btn" id="np-prev" title="Précédent"><i class="fas fa-backward-step"></i></button>
+            <button class="np-btn np-btn-play" id="np-play" title="Lecture/Pause"><i class="fas fa-play"></i></button>
+            <button class="np-btn" id="np-next" title="Suivant"><i class="fas fa-forward-step"></i></button>
+            <button class="np-btn" id="np-repeat" title="Répéter"><i class="fas fa-repeat"></i></button>
+        </div>
+
+        <div class="np-secondary-actions">
+            <i class="far fa-heart" id="np-like" title="J'aime"></i>
+            <i class="fas fa-download" title="Télécharger"></i>
+<!--            <i class="fas fa-share-nodes" title="Partager"></i>-->
+<!--            <i class="fas fa-list" title="File d'attente"></i>-->
+            <div class="np-add-playlist-wrap">
+            <i class="fas fa-list-ul" id="np-add-playlist" title="Ajouter à une playlist"
+               hx-get="{% url 'ActuWebApp:ajout_playlist' musique_id=musique.id %}"
+               hx-trigger="click"
+               hx-target="#np-playlist-menu"
+               hx-swap="innerHTML">
+            </i>
+                <div id="np-playlist-menu" class="np-playlist-menu"></div>
+            </div>
+        </div>
+
+        <a href="{% url 'ActuWebApp:aff_mus' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
+
+
+    <div class="lyrics-box">
+        <h3><i class="fas fa-music"></i> Paroles</h3>
+        <div class="lyrics-content">
+             {% if musique.lyrics %}
+            <pre>{{musique.lyrics.contenu|linebreaks}}</pre>
+            {% else %}
+                <pre>Paroles non disponibles pour le moment.</pre>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- 💬 COMMENTAIRES -->
+    <div class="comments-section">
+        {% if request.user.is_authenticated %}
+        <form id="commentForm" class="comment-form"
+              hx-post="{% url 'ActuWebApp:addcomment' musique.slug %}"
+              hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'
+              hx-target="#comments-list-recent"
+              hx-swap="afterbegin"
+              hx-disabled-elt="#commentSubmitBtn"
+              hx-on:htmx:after-request="if(event.detail.successful) this.reset()">
+            {% csrf_token %}
+            <label for="comment">Ajouter un commentaire :</label>
+            <textarea name="comment" id="comment" rows="4" required></textarea>
+            <button type="submit" id="commentSubmitBtn">Envoyer</button>
+        </form>
+
+        <!-- Zone de message de confirmation/erreur, remplie via hx-swap-oob depuis le partial -->
+        <div id="commentMessage"></div>
+        {% else %}
+        <p>Vous devez vous <a href="{% url 'ActuWebApp:connect' %}" style="color:var(--cyan,#00c4c4);">connecter</a> pour ajouter un commentaire.</p>
+        {% endif %}
+
+        <h3>Commentaires</h3>
+        <div id="comments-list-recent" class="comments-list">
+            {% for comment in musique.commentaires.all %}
+                {% include 'partials/commentaire_item.html' with comment=comment %}
+            {% endfor %}
+        </div>
+
+
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'ActuWebApp:logout' %}" style="color:#999;">Se déconnecter</a>
+        {% endif %}
+    </div>
+
+    <!-- 🎧 RECOMMANDATIONS -->
+    <div class="recommendations">
+        {% if suggestions %}
+        <div class="music-list">
+            <h2>🔥 Plus de contenus dans {{ suggestions.0.genre }}</h2>
+            {% for m in suggestions %}
+            <div class="song-item">
+                <a href="{% url 'ActuWebApp:play_mus' m.slug %}">
+                    <div class="album-cover" style="background-image: url('{{ m.image_url }}');"></div>
+                    <div class="song-info">
+                        <p class="song-title">{{ m.titre }}</p>
+                        <p class="song-artist">{{ m.artiste }}</p>
+                    </div>
+                </a>
+                <div class="song-actions">
+                    <i class="far fa-heart"></i>
+                    <i class="fas fa-ellipsis-h"></i>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color:#999;">Aucun contenu disponible.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+(function () {
+    const audio      = document.getElementById('np-audio');
+    const vinyl      = document.getElementById('np-vinyl');
+    const btnPlay    = document.getElementById('np-play');
+    const btnPrev    = document.getElementById('np-prev');
+    const btnNext    = document.getElementById('np-next');
+    const btnShuffle = document.getElementById('np-shuffle');
+    const btnRepeat  = document.getElementById('np-repeat');
+    const likeIcon   = document.getElementById('np-like');
+    const track      = document.getElementById('np-progress-track');
+    const fill       = document.getElementById('np-progress-fill');
+    const thumb      = document.getElementById('np-progress-thumb');
+    const rangeInput = document.getElementById('np-progress-input');
+    const curEl      = document.getElementById('np-current-time');
+    const durEl      = document.getElementById('np-duration');
+
+    function fmt(sec) {
+        if (isNaN(sec) || sec === Infinity) return '0:00';
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    function playAudio() {
+        audio.play();
+        btnPlay.innerHTML = '<i class="fas fa-pause"></i>';
+        vinyl.classList.add('is-playing');
+    }
+
+    function pauseAudio() {
+        audio.pause();
+        btnPlay.innerHTML = '<i class="fas fa-play"></i>';
+        vinyl.classList.remove('is-playing');
+    }
+
+    btnPlay.addEventListener('click', () => {
+        audio.paused ? playAudio() : pauseAudio();
+    });
+
+    audio.addEventListener('loadedmetadata', () => {
+        durEl.textContent = fmt(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+        const pct = (audio.currentTime / audio.duration) * 100 || 0;
+        fill.style.width = pct + '%';
+        thumb.style.left = pct + '%';
+        rangeInput.value = pct;
+        curEl.textContent = fmt(audio.currentTime);
+    });
+
+    rangeInput.addEventListener('input', () => {
+        if (audio.duration) {
+            audio.currentTime = (rangeInput.value / 100) * audio.duration;
+        }
+    });
+
+    btnShuffle.addEventListener('click', () => btnShuffle.classList.toggle('is-toggled'));
+    btnRepeat.addEventListener('click', () => {
+        btnRepeat.classList.toggle('is-toggled');
+        audio.loop = btnRepeat.classList.contains('is-toggled');
+    });
+
+    likeIcon.addEventListener('click', () => {
+        likeIcon.classList.toggle('is-liked');
+        likeIcon.classList.toggle('fas');
+        likeIcon.classList.toggle('far');
+    });
+
+    // Précédent / Suivant : à relier à vos vraies URLs de recommandations si besoin
+    btnPrev.addEventListener('click', () => { audio.currentTime = 0; });
+    btnNext.addEventListener('click', () => {
+        const first = document.querySelector('.recommendation-list .album-item a');
+        if (first) window.location.href = first.href;
+    });
+
+    audio.addEventListener('ended', () => {
+        if (!audio.loop) pauseAudio();
+    });
+
+    // Lecture automatique au chargement (optionnel — décommentez si voulu)
+    // playAudio();
+
+    // ===== Menu "Ajouter à une playlist" : toggle + fermeture =====
+    const addPlaylistBtn  = document.getElementById('np-add-playlist');
+    const playlistMenu    = document.getElementById('np-playlist-menu');
+
+    addPlaylistBtn.addEventListener('htmx:beforeRequest', (e) => {
+        // Si le menu est déjà ouvert, un second clic le referme au lieu de le recharger
+        if (playlistMenu.classList.contains('is-open')) {
+            e.preventDefault();
+            playlistMenu.classList.remove('is-open');
+            playlistMenu.innerHTML = '';
+        }
+    });
+
+    document.body.addEventListener('htmx:afterSwap', (e) => {
+        if (e.detail.target === playlistMenu) {
+            playlistMenu.classList.toggle('is-open', playlistMenu.innerHTML.trim().length > 0);
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!playlistMenu.contains(e.target) && e.target !== addPlaylistBtn) {
+            playlistMenu.classList.remove('is-open');
+            playlistMenu.innerHTML = '';
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            playlistMenu.classList.remove('is-open');
+            playlistMenu.innerHTML = '';
+        }
+    });
+
+    // Auto-effacement de la confirmation "Ajouté à ..." après 2 secondes
+    document.body.addEventListener('htmx:afterSwap', (e) => {
+        if (e.detail.target === playlistMenu && playlistMenu.querySelector('.np-dropdown-confirm')) {
+            setTimeout(() => {
+                playlistMenu.classList.remove('is-open');
+                playlistMenu.innerHTML = '';
+            }, 1800);
+        }
+    });
+
+    // ===== Auto-effacement du message de commentaire (succès/erreur) =====
+    document.body.addEventListener('htmx:oobAfterSwap', (e) => {
+        if (e.detail.target.id === 'commentMessage' && e.detail.target.textContent.trim()) {
+            setTimeout(() => {
+                e.detail.target.textContent = '';
+                e.detail.target.classList.remove('is-error');
+            }, 3000);
+        }
+    });
+
+    // ===== Gestion des erreurs de requête htmx (ex: 400/500) =====
+    document.body.addEventListener('htmx:responseError', (e) => {
+        if (e.detail.elt && e.detail.elt.id === 'commentForm') {
+            const msgBox = document.getElementById('commentMessage');
+            if (msgBox) {
+                msgBox.textContent = "Une erreur est survenue, veuillez réessayer.";
+                msgBox.classList.add('is-error');
+            }
+        }
+    });
+})();
+</script>
+{% endblock %}

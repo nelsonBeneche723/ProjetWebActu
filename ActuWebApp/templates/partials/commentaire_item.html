@@ -1,0 +1,25 @@
+<div class="commentaire">
+    <img src="{{comment.user.profil.get_avatar_url}}"
+         style="width:40px; height:40px; border-radius:50%;
+         object-fit:cover; flex-shrink:0; background:#222;"
+         alt="{{comment.user.username}}">
+    <strong><i>{{ comment.user.username }}</i></strong>
+    <p>{{comment.date}}</p>
+    <p>{{ comment.commentaire }}</p>
+</div>
+
+{% if show_message %}
+<div id="commentMessage" hx-swap-oob="true" hx-on:load="setTimeout(()=>this.innerText='', 3000)">
+    ✅ Votre commentaire a été ajouté avec succès !
+</div>
+<script>
+    (function(){
+    var el = document.getElementById('commentMessage');
+    if (el){
+        setTimeout(function(){
+        el.textContent='';}, 3000);
+    }
+
+    })();
+</script>
+{% endif %}

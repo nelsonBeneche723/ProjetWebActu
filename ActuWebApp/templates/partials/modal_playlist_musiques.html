@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mp-modal" id="modalPlaylistMusiques">
+    <div class="mp-modal__card mp-modal__card--wide">
+        <div class="mp-modal__head">
+            <h3>{{ playlist.nom }}</h3>
+            <div class="mp-modal__x"><i class="fas fa-xmark"></i></div>
+        </div>
+
+        <ul class="pl-track-list">
+            {% for m in detail_playlist.morceaux.all %}
+            <li class="pl-track">
+                <a href="">
+                    <div class="pl-track__cover" style="background-image:url('{{ m.image_url }}');"></div>
+                    <div class="pl-track__info">
+                        <p class="pl-track__title">{{ m.titre }}</p>
+                        <p class="pl-track__artist">{{ m.artiste }}</p>
+                    </div>
+                </a>
+                <button type="button" class="pl-track__remove" title="Retirer de la playlist"
+                        hx-post=""
+                        hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'
+                        hx-target="#modalPlaylistMusiques"
+                        hx-swap="outerHTML">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </li>
+            {% empty %}
+            <li class="pl-track-empty">Cette playlist ne contient encore aucune musique.</li>
+            {% endfor %}
+        </ul>
+
+        <div class="mp-modal__actions">
+            <button type="button" class="mp-modal-btn mp-modal-btn-secondary" onclick="document.getElementById('modal-container').innerHTML=''">
+                Fermer
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+<style>
+.rr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+    padding: 4px 0;
+}
+
+.rr-carte {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: #18181F;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 12px;
+    padding: 10px;
+    cursor: pointer;
+    transition: background .18s ease, transform .15s ease;
+}
+
+.rr-carte:hover {
+    background: #1E1E28;
+    transform: translateY(-3px);
+}
+
+.rr-carte__cover-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.rr-carte__cover-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+}
+
+.rr-carte__play {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.35);
+    opacity: 0; transition: opacity .18s ease;
+}
+
+.rr-carte:hover .rr-carte__play { opacity: 1; }
+
+.rr-carte__play i {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #E8274B; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+}
+
+.rr-carte__titre {
+    font-family: 'Outfit', sans-serif;
+    font-size: 13.5px; font-weight: 600;
+    color: #E2E2EE;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.rr-carte__artiste {
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px; color: #94A3B8;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.rr-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #94A3B8;
+    font-family: 'Outfit', sans-serif;
+}
+
+.rr-empty i {
+    font-size: 34px; color: #64748B;
+    display: block; margin-bottom: 12px; opacity: .6;
+}
+
+.rr-empty strong { color: #E2E2EE; }
+</style>
+
+{% if query and not resultats %}
+<div class="rr-empty">
+    <i class="fas fa-music-slash"></i>
+    Aucun résultat pour "<strong>{{ query }}</strong>"
+</div>
+{% endif %}
+
+{% if resultats %}
+<div class="rr-grid">
+    {% for musique in resultats %}
+    <a class="rr-carte" href="{% url 'ActuWebApp:play_mus' musique.slug %}">
+        <div class="rr-carte__cover-wrap">
+            <img src="{{ musique.image_url }}"
+                 alt="{{ musique.titre }}"
+                 loading="lazy"
+                 onerror="this.src='https://placehold.co/150x150/18181F/64748B?text=♫'">
+            <div class="rr-carte__play"><i class="fas fa-play"></i></div>
+        </div>
+        <p class="rr-carte__titre">{{ musique.titre }}</p>
+        <p class="rr-carte__artiste">{{ musique.artiste }}</p>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}

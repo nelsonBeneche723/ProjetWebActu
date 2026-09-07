@@ -1,0 +1,11 @@
+{% for p in playlists %}
+<li class="pl-item">
+    <a href="#" class="pl-link"> <!---ajouter le lien vers la lecture-->
+        <span class="pl-ico"><i class="fas fa-list-ul"></i></span>
+        <span class="pl-name">{{ p.nom }}</span>
+        <span class="pl-count">{{ p.morceaux.count }}</span>
+    </a>
+</li>
+{% empty %}
+<li class="vide">Aucune playlist pour le moment.</li>
+{% endfor %}
