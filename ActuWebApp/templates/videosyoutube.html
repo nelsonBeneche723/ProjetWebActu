@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
 {% block title %}Vidéos YouTube — ActuWebMedia{% endblock %}
-
+{% load static %}
 {% block link %}
-<link rel="icon" href="{{ url_for('static', filename='images/music.ico') }}" type="image/x-icon">
+<link rel="icon" href="{% static 'images/music.ico' %}" type="image/x-icon">
 {% endblock %}
 
 {% block content %}
@@ -94,7 +94,7 @@
 
 .yt-hero__title {
     font-family: var(--ff-head);
-    font-size: clamp(36px, 6vw, 62px);
+    font-size: clamp(30px, 6vw, 62px);
     letter-spacing: 3px; color: #fff; line-height: 1;
     margin-bottom: 8px;
 }
@@ -173,6 +173,7 @@
     display: flex; flex-direction: column;
     transition: transform .22s, box-shadow .22s, border-color .22s;
     text-decoration: none;
+    cursor:pointer;
 }
 
 .yt-card:hover {
@@ -326,6 +327,27 @@
 @media (max-width: 380px) {
     .yt-grid { grid-template-columns: 1fr; }
 }
+
+.yt-modal {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.9);
+    z-index: 999;
+    align-items: center; justify-content: center;
+}
+
+.yt-modal.is-open { display: flex; }
+.yt-modal__inner {
+    width: 92%; max-width: 960px;
+    aspect-ratio: 16/9;
+    position: relative;
+}
+.yt-modal__player { width: 100%; height: 100%; }
+.yt-modal__close {
+    position: absolute; top: -38px; right: 0;
+    background: none; border: none; color: #fff;
+    font-size: 30px; cursor: pointer; line-height: 1;
+}
 </style>
 
 <!-- ══ PAGE ══ -->
@@ -340,7 +362,7 @@
             <div class="yt-hero__eyebrow">
                 <i class="fas fa-play"></i> ActuWebMedia
             </div>
-            <h1 class="yt-hero__title">VIDÉOS <em>YOUTUBE</em></h1>
+            <h3 class="yt-hero__title">VIDÉOS <em>YOUTUBE</em></h3>
             <p class="yt-hero__sub">
                 Clips, concerts, interviews — les meilleures vidéos
                 musicales sélectionnées pour vous.
@@ -350,7 +372,7 @@
                 <div class="yt-stat">
                     <i class="fas fa-film"></i>
                     <strong>{{ videosyoutube|length }}</strong>
-                    <span>vidéo{{ 's' if videosyoutube|length > 1 }}</span>
+                    <span>vidéo{{ videosyoutube|length|pluralize }}</span>
                 </div>
                 {% endif %}
                 <div class="yt-stat">
@@ -374,25 +396,20 @@
             <div class="yt-section-label">
                 <h2><i class="fab fa-youtube" style="color:var(--yt-ytred); margin-right:8px"></i>Vidéos Musicales</h2>
             </div>
-            <span class="yt-count">{{ videosyoutube|length }} vidéo{{ 's' if videosyoutube|length > 1 }}</span>
+            <span class="yt-count">{{ videosyoutube|length }} vidéo{{ videosyoutube|length|pluralize }}</span>
         </div>
 
         <div class="yt-grid">
             {% for video in videosyoutube %}
-            <a class="yt-card"
-               href="https://www.youtube.com/watch?v={{ video.id }}"
-               target="_blank"
-               rel="noopener noreferrer"
-               title="{{ video.titre }}">
-
+            <a class="yt-card" href="https://www.youtube.com/watch?v={{video.id}}"
+               target="_blank" rel="noopener noreferrer" data-video-id="{{video.id}}" title="{{video.titre}}">
                 <!-- Thumbnail -->
                 <div class="yt-card__thumb">
                     <img
                         src="https://img.youtube.com/vi/{{ video.id }}/mqdefault.jpg"
                         alt="{{ video.titre }}"
                         loading="lazy"
-                        onerror="this.src='https://placehold.co/320x180/18181F/64748B?text=YouTube'"
-                    >
+                        onerror="this.src='https://placehold.co/320x180/18181F/64748B?text=YouTube'">
                     <div class="yt-card__yt">
                         <i class="fab fa-youtube"></i> YOUTUBE
                     </div>
@@ -436,6 +453,12 @@
         </div>
 
         {% endif %}
+        <div id="yt-modal" class="yt-modal">
+            <div class="yt-modal__inner">
+            <button id="yt-modal-close" class="yt-modal__close">&times;</button>
+            <div class="yt-modal__player"></div>
+        </div>
+</div>
 
     </div><!-- /yt-content -->
 </div><!-- /yt-page -->
@@ -460,5 +483,24 @@
         });
     }
 })();
+
+
+document.querySelectorAll('.yt-card').forEach(card => {
+    card.addEventListener('click', () => {
+        const id = card.dataset.videoId;
+        document.querySelector('.yt-modal__player').innerHTML =
+            `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1"
+                     frameborder="0"
+                     allow="autoplay; encrypted-media; fullscreen"
+                     allowfullscreen
+                     style="width:100%;height:100%;"></iframe>`;
+        document.getElementById('yt-modal').classList.add('is-open');
+    });
+});
+
+document.getElementById('yt-modal-close').addEventListener('click', () => {
+    document.getElementById('yt-modal').classList.remove('is-open');
+    document.querySelector('.yt-modal__player').innerHTML = ''; // stoppe la lecture
+});
 </script>
 {% endblock %}

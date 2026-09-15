@@ -395,13 +395,13 @@
         <a href="#" class="tv-filter-tab is-active" data-filter="all">
             <i class="fas fa-border-all"></i> Toutes
         </a>
-        <a href="#" class="tv-filter-tab" data-filter="news">
+        <a href="#" class="tv-filter-tab" data-filter="info">
             <i class="fas fa-newspaper"></i> Actualités
         </a>
         <a href="#" class="tv-filter-tab" data-filter="sport">
             <i class="fas fa-futbol"></i> Sports
         </a>
-        <a href="#" class="tv-filter-tab" data-filter="music">
+        <a href="#" class="tv-filter-tab" data-filter="musique">
             <i class="fas fa-music"></i> Musique
         </a>
         <a href="#" class="tv-filter-tab" data-filter="culture">
@@ -424,7 +424,7 @@
         <div class="tv-grid">
             {% if channeltv %}
                 {% for channel in channeltv %}
-                <a class="tv-card"
+                <a class="tv-card" data-category="{{channel.categorie}}"
                    href="{% url 'ActuWebApp:livetv' slug=channel.slug %}"
                    title="Regarder {{ channel.nom }}">
 

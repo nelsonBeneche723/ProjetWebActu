@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Actu Web — Politiques, Sports, Santé, Musiques, Résultats matchs{% endblock %}
+{% block title %}Actu Web Media | les dernières actualités, Sports, Santé, Musiques, Résultats matchs..{% endblock %}
 
 {% block link %}
-<link rel="icon" href="{% static 'images/actuweb.ico' %}" type="image/x-icon">
-<!--<link rel="icon" href="{% static 'images/actuweb.png' %}" type="image/png">-->
+<link rel="icon" href="{% static 'images/awm_logo.ico' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'images/awm_logo.png' %}" type="image/png">
 {% endblock %}
-,
-{% block description %}Actu Web est un site qui vous offre : les dernières actualités politiques, les résultats sportifs et classements des 5 grands championnats européens. Vous pouvez aussi écouter des musiques en ligne, profiter de la radio, regarder des chaînes TV, consulter la météo, discuter avec Gemini directement depuis le site, et suivre les actualités santé et technologies.{% endblock %}
-{% block og_description %}Actu Web est un site qui vous offre : les dernières actualités politiques, les résultats sportifs, regarder des chaînes TV, consulter la météo, écouter des musiques et classements des 5 grands championnats européens.{% endblock %}
-{% block og_title %}Actu Web — Politiques, Sports, Santé, Musiques, Résultats matchs{% endblock %}
+
+{% block description %}Actu Web Media est un site qui vous offre : les dernières actualités politiques, les résultats sportifs et classements des 5 grands championnats européens. Vous pouvez aussi écouter des musiques en ligne, profiter de la radio, regarder des chaînes TV, consulter la météo, discuter avec Gemini directement depuis le site, et suivre les actualités santé et technologies.{% endblock %}
+{% block og_description %}Actu Web Media est un site qui vous offre : les dernières actualités politiques, les résultats sportifs, regarder des chaînes TV, consulter la météo, écouter des musiques et classements des 5 grands championnats européens.{% endblock %}
+{% block og_title %}Actu Web Media  — Politiques, Sports, Santé, Musiques, Résultats matchs{% endblock %}
 {% block og_url %}{{ request.url }}{% endblock %}
 {% block og_image %}{% static 'images/actuweb.png' %}{% endblock %}
 
@@ -904,22 +904,43 @@
             </div>
         </div>
 
-        <!-- Newsletter -->
-        <div class="sidebar-widget">
-            <div class="widget-head">
-                <i class="fas fa-envelope"></i> Newsletters
-            </div>
-            <div class="newsletter-widget">
-                <p>Recevez les dernières actualités directement dans votre boîte mail.</p>
-                <div class="newsletter-form">
-                    <input type="email" class="newsletter-input" placeholder="votre@email.com">
-                    <button class="newsletter-btn">
-                        <i class="fas fa-paper-plane"></i> S'abonner
-                    </button>
-                </div>
-            </div>
-        </div>
-
+<!--        &lt;!&ndash; Newsletter &ndash;&gt;-->
+<!--        <div class="sidebar-widget">-->
+<!--            <div class="widget-head">-->
+<!--                <i class="fas fa-envelope"></i> Newsletters-->
+<!--            </div>-->
+<!--            <div class="newsletter-widget">-->
+<!--                <p>Recevez les dernières actualités directement dans votre boîte mail.</p>-->
+<!--                <div class="newsletter-form">-->
+<!--                    <input type="email" class="newsletter-input" placeholder="votre@email.com">-->
+<!--                    <button class="newsletter-btn">-->
+<!--                        <i class="fas fa-paper-plane"></i> S'abonner-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!-- Statistiques du site -->
+<div class="sidebar-widget">
+    <div class="widget-head">
+        <i class="fas fa-chart-simple"></i> Aperçu du site
+    </div>
+    <div class="cat-list">
+        <div class="cat-pill"><i class="fas fa-users"></i> {{ nb_users_profil }} utilisateurs</div>
+        <div class="cat-pill"><i class="fas fa-music"></i> {{ nb_musiques }} musiques</div>
+        <div class="cat-pill"><i class="fas fa-radio"></i> {{ nb_radios }} radios</div>
+        <div class="cat-pill"><i class="fas fa-tv"></i> {{ nb_tv }} chaînes TV</div>
+    </div>
+    <div class="widget-head" style="margin-top:14px;">
+        <i class="fas fa-newspaper"></i> Articles par rubrique
+    </div>
+    <div class="cat-list">
+        <div class="cat-pill"><i class="fas fa-globe"></i> {{ nb_art_actualites }} actualités</div>
+        <div class="cat-pill"><i class="fas fa-futbol"></i> {{ nb_art_sports }} sports</div>
+        <div class="cat-pill"><i class="fas fa-heart-pulse"></i> {{ nb_art_sante }} santé</div>
+        <div class="cat-pill"><i class="fas fa-flask"></i> {{ nb_art_sciences }} sciences</div>
+        <div class="cat-pill"><i class="fas fa-music"></i> {{ nb_art_musiques }} musiques</div>
+    </div>
+</div>
     </aside>
 </div>
 

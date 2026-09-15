@@ -753,29 +753,29 @@
 </div>
 
 <!-- ══ TICKER ══ -->
-<div class="awm-ticker">
-    <div class="awm-ticker__tag">
-        <i class="fas fa-circle"></i> LIVE
-    </div>
-    <div class="awm-ticker__track">
-        <span class="awm-ticker__item">Bienvenue sur ActuWebMedia — Infos, Musiques, Sports &amp; Sciences</span>
-        <span class="awm-ticker__item">Restez connecté pour les dernières actualités en temps réel</span>
-        <span class="awm-ticker__item">Météo, Radios en direct et TV Live disponibles</span>
-        <span class="awm-ticker__item">Découvrez notre assistant Gemini AI intégré</span>
-        <!-- Doublons pour boucle infinie -->
-        <span class="awm-ticker__item">Bienvenue sur ActuWebMedia — Infos, Musiques, Sports &amp; Sciences</span>
-        <span class="awm-ticker__item">Restez connecté pour les dernières actualités en temps réel</span>
-        <span class="awm-ticker__item">Météo, Radios en direct et TV Live disponibles</span>
-        <span class="awm-ticker__item">Découvrez notre assistant Gemini AI intégré</span>
-    </div>
-</div>
+<!--<div class="awm-ticker">-->
+<!--    <div class="awm-ticker__tag">-->
+<!--        <i class="fas fa-circle"></i> LIVE-->
+<!--    </div>-->
+<!--    <div class="awm-ticker__track">-->
+<!--        <span class="awm-ticker__item">Bienvenue sur ActuWebMedia — Infos, Musiques, Sports &amp; Sciences</span>-->
+<!--        <span class="awm-ticker__item">Restez connecté pour les dernières actualités en temps réel</span>-->
+<!--        <span class="awm-ticker__item">Météo, Radios en direct et TV Live disponibles</span>-->
+<!--        <span class="awm-ticker__item">Découvrez notre assistant Gemini AI intégré</span>-->
+<!--        &lt;!&ndash; Doublons pour boucle infinie &ndash;&gt;-->
+<!--        <span class="awm-ticker__item">Bienvenue sur ActuWebMedia — Infos, Musiques, Sports &amp; Sciences</span>-->
+<!--        <span class="awm-ticker__item">Restez connecté pour les dernières actualités en temps réel</span>-->
+<!--        <span class="awm-ticker__item">Météo, Radios en direct et TV Live disponibles</span>-->
+<!--        <span class="awm-ticker__item">Découvrez notre assistant Gemini AI intégré</span>-->
+<!--    </div>-->
+<!--</div>-->
 
 <!-- ══ NAVBAR ══ -->
 <nav class="awm-nav" id="awm-nav">
 
     <a href="/" class="awm-nav__logo">
-        <img src="{% static 'images/1000127950-removebg-preview.png' %}" alt="ActuWebMedia">
-        <span class="awm-nav__wordmark">ACTU<em>WEB</em></span>
+        <img src="{% static 'images/actuwebapp-logo-2.svg' %}" alt="ActuWebMedia">
+<!--        <span class="awm-nav__wordmark">ACTU<em>WEB</em></span>-->
     </a>
 
     <ul class="awm-nav__links">
@@ -825,16 +825,16 @@
 <div class="awm-drawer" id="awm-drawer" aria-hidden="true">
 
     <div class="awm-drawer__head">
-        <span class="awm-drawer__brand">ACTU<em>WEB</em></span>
+        <span class="awm-drawer__brand">ACTU<em>WEB</em>MEDIA</span>
         <button class="awm-drawer__x" id="awm-drawer-close" aria-label="Fermer">
             <i class="fas fa-xmark"></i>
         </button>
     </div>
-
-    <div class="awm-drawer__search">
-        <i class="fas fa-magnifying-glass"></i>
-        <input type="text" placeholder="Rechercher…" enterkeyhint="search">
-    </div>
+    <!--Search -->
+<!--    <div class="awm-drawer__search">-->
+<!--        <i class="fas fa-magnifying-glass"></i>-->
+<!--        <input type="text" placeholder="Rechercher…" enterkeyhint="search">-->
+<!--    </div>-->
 
     <ul class="awm-drawer__nav">
         <li><a href="{% url 'ActuWebApp:index' %}"><span class="dn-ico"><i class="fas fa-house"></i></span>Accueil</a></li>

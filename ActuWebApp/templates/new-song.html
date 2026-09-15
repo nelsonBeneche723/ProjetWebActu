@@ -1,315 +1,955 @@
 {% extends 'base.html' %}
-{% block title%} Nouvelle chanson | Actu Web {% endblock %}
 
+{% block title %} Nouvelle chanson | ActuWebMedia {% endblock %}
+{% load static %}
 {% block link %}
-<!--<link rel="icon" href="{{ url_for('static', filename='images/mu.ico') }}" type="image/x-icon">-->
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="icon" href="{% static 'images/music.ico'%}" type="image/x-icon">
 {% endblock %}
+
 {% block content %}
 <style>
-   nav, footer {
-        background-color: #1e1e2f;
-    }
-  body {
-    background-color: #121212;
-    color: #fff;
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-
-  .section-title {
-    text-align: center;
-    font-size: 2.2rem;
-    margin: 30px 0;
-    color: #f1f1f1;
-  }
-
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 30px;
-    padding: 0 40px 60px;
-  }
-
-  .music-card {
-    background-color: #1f1f1f;
-    border-radius: 16px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-    transition: transform 0.3s ease;
-  }
-
-  .music-card:hover {
-    transform: scale(1.03);
-  }
-
-  .music-card h3 {
-    margin: 10px 0;
-    font-size: 1.1rem;
-  }
-
-  .music-card p {
-    margin: 5px 0 15px;
-    font-size: 0.95rem;
-    color: #bbb;
-  }
-
-  .music-card img {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    background-color: #2a2a2a;
-  }
-
-  .btn {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 10px 16px;
-    background-color: #ff4c60;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 0.95rem;
-    transition: background-color 0.2s ease;
-  }
-
-  .btn:hover {
-    background-color: #e63a4c;
-  }
-  * Centrer le tableau */
-    .classement-table {
-        margin: 20px auto; /* Centre le tableau */
-        border-collapse: collapse;
-        width: 90%;
-        max-width: 1000px;
-        background-color: #ffffff;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-    /* Style des titres */
-    .table-trending thead {
-        background-color: #121212;
-        color: white;
-        font-weight: bold;
-    }
-
-    /* Espacement */
-    .table-trending th, .classement-table td {
-        padding: 12px 15px;
-        text-align: center;
-        border-bottom: 1px solid #ddd;
-    }
-
-    /* Effet hover sur les lignes */
-    .table-trending tbody tr:hover {
-        background-color: #1e1e2f;
-    }
-
-    /* Dernière ligne sans bord bas */
-    .table-trending tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-
-  .table-trending {
-    width: 100%;
-    border-collapse: collapse;
-    color: white;
-    margin: 40px auto;
-  }
-
-  .table-trending th,
-  .table-trending td {
-    padding: 12px;
-    border-bottom: 1px solid #333;
-    text-align: left;
-  }
-
-  .table-trending img.song-img {
-    height: 40px;
-    width: 40px;
-    border-radius: 6px;
-    object-fit: cover;
-  }
-
-  .btn-icon {
-    height: 24px;
-    width: 24px;
-    transition: transform 0.2s;
-  }
-
-  .btn-icon:hover {
-    transform: scale(1.2);
-  }
-
-  .hover-title {
-    position: relative;
+:root {
+    --m-bg:     #0A0A0F;
+    --m-bg2:    #111118;
+    --m-bg3:    #18181F;
+    --m-bg4:    #1E1E28;
+    --m-border: rgba(255,255,255,.07);
+    --m-red:    #E8274B;
+    --m-gold:   #F5A623;
+    --m-pink:   #FF4081;
+    --m-purple: #7C3AED;
+    --m-text:   #E2E2EE;
+    --m-muted:  #64748B;
+    --m-muted2: #94A3B8;
+    --ff-head:  'Bebas Neue', sans-serif;
+    --ff-body:  'Outfit', sans-serif;
+}
+/* ── LAYOUT ── */
+.mp-page {
+    display: flex;
+    min-height: 100vh;
+    background: var(--m-bg);
+    font-family: var(--ff-body);
+}
+/* ════════════════════════════
+   SIDEBAR
+════════════════════════════ */
+.mp-sidebar {
+    width: 230px;
+    flex-shrink: 0;
+    background: var(--m-bg2);
+    border-right: 1px solid var(--m-border);
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    transition: width .3s cubic-bezier(.4,0,.2,1);
+    z-index: 50;
+}
+.mp-sidebar.collapsed { width: 64px; }
+.mp-sidebar::-webkit-scrollbar { width: 3px; }
+.mp-sidebar::-webkit-scrollbar-thumb { background: var(--m-red); border-radius: 3px; }
+.sb-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 16px 12px;
+    border-bottom: 1px solid var(--m-border);
+    flex-shrink: 0;
+}
+.sb-head-title {
+    font-family: var(--ff-head);
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: var(--m-text);
+    white-space: nowrap;
+    overflow: hidden;
+    transition: opacity .2s;
+}
+.mp-sidebar.collapsed .sb-head-title { opacity: 0; width: 0; }
+.sb-toggle {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.05);
+    border: 1px solid var(--m-border);
+    border-radius: 7px;
+    color: var(--m-muted2);
+    font-size: 11px;
     cursor: pointer;
-  }
-
-  .mini-player {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: #1e1e1e;
-    padding: 5px;
-    border-radius: 8px;
-    z-index: 10;
-  }
-
-  .hover-title:hover .mini-player {
-    display: block;
-  }
-
-  #global-player {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #1e1e1e;
-    color: white;
-    padding: 10px 20px;
-    border-top: 2px solid #333;
-    display: none;
-    z-index: 1000;
-  }
-
-<!--responsive-->
-
-  @media screen and (max-width: 600px) {
- .table-trending {
-    width: 100%;
-    font-size: 14px;
-    margin: 10px auto;
-    border-radius: 0;
-    box-shadow: none;
-  }
-
-  .table-trending th,
-  .table-trending td,
-  .classement-table th,
-  .classement-table td {
-    padding: 8px 6px;
-    font-size: 13px;
-    text-align: left;
-  }
-
-  .table-trending img.song-img {
-    width: 36px;
-    height: 36px;
-    border-radius: 5px;
-  }
-
-  .btn-icon {
-    width: 20px;
-    height: 20px;
-  }
-
-  #global-player {
+    flex-shrink: 0;
+    transition: background .2s, color .2s;
+}
+.sb-toggle:hover { background: var(--m-red); color: #fff; border-color: var(--m-red); }
+/* User */
+.sb-user {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--m-border);
+    flex-shrink: 0;
+}
+.sb-user-inner {
+    display: flex;
+    align-items: center;
+    gap: 9px;
     padding: 8px 10px;
+    background: rgba(232,39,75,.07);
+    border: 1px solid rgba(232,39,75,.14);
+    border-radius: 10px;
+}
+.sb-av {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--m-red), var(--m-purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+}
+.sb-uname {
+    font-size: 12.5px; font-weight: 600;
+    color: var(--m-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: opacity .2s;
+}
+.mp-sidebar.collapsed .sb-uname { opacity: 0; width: 0; }
+/* Nav */
+.sb-section {
+    padding: 12px 14px 4px;
+    font-size: 9.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--m-muted);
+    white-space: nowrap; overflow: hidden;
+    transition: opacity .2s;
+}
+.mp-sidebar.collapsed .sb-section { opacity: 0; }
+.sb-nav { list-style: none; padding: 6px 10px; }
+.sb-nav li { margin-bottom: 2px; }
+.sb-nav a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    font-size: 13.5px; font-weight: 500;
+    color: var(--m-muted2);
+    text-decoration: none;
+    transition: background .18s, color .18s;
+    white-space: nowrap; overflow: hidden;
+}
+.sb-nav a:hover { background: rgba(255,255,255,.06); color: var(--m-text); }
+.sb-nav a.active { background: rgba(232,39,75,.12); color: #fff; }
+.sb-nav a.active .sb-ico { color: var(--m-red); }
+.sb-ico { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+.sb-lbl { transition: opacity .2s; }
+.mp-sidebar.collapsed .sb-lbl { opacity: 0; width: 0; overflow: hidden; }
+/* ════════════════════════════
+   MAIN
+════════════════════════════ */
+.mp-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+/* ── HERO ── */
+.mp-hero {
+    background: linear-gradient(135deg, #0F0F1A 0%, #1A0A1E 50%, #0A0F1A 100%);
+    border-bottom: 1px solid var(--m-border);
+    padding: 36px 32px;
+    position: relative;
+    overflow: hidden;
+}
+.mp-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(232,39,75,.14) 0%, transparent 70%);
+    pointer-events: none;
+}
+.mp-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; right: 8%;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(124,58,237,.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+.mp-hero__inner { position: relative; z-index: 1; }
+.mp-hero__eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--ff-head);
+    font-size: 12px; letter-spacing: 2.5px;
+    color: var(--m-red); text-transform: uppercase;
+    margin-bottom: 10px;
+}
+.mp-hero__eyebrow::before {
+    content: '';
+    width: 3px; height: 14px;
+    background: var(--m-red); border-radius: 2px;
+}
+.mp-hero__title {
+    font-family: var(--ff-head);
+    font-size: clamp(32px, 5vw, 54px);
+    letter-spacing: 2px; color: #fff; line-height: 1;
+    margin-bottom: 6px;
+}
+.mp-hero__title em { font-style: normal; color: var(--m-red); }
+.mp-hero__sub {
+    font-size: 14px; color: var(--m-muted2);
+    margin-bottom: 28px; max-width: 480px;
+}
+/* Search */
+.mp-search { display: flex; align-items: center; gap: 10px; max-width: 560px; }
+.mp-search-wrap { flex: 1; position: relative; display: flex; align-items: center; }
+.mp-search-wrap i {
+    position: absolute; left: 16px;
+    color: var(--m-muted); font-size: 14px; pointer-events: none;
+}
+.mp-search-wrap input {
+    width: 100%;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 50px;
+    padding: 12px 20px 12px 44px;
+    font-family: var(--ff-body); font-size: 14px;
+    color: #fff; outline: none; caret-color: var(--m-red);
+    transition: border-color .2s, background .2s, box-shadow .2s;
+}
+.mp-search-wrap input::placeholder { color: var(--m-muted); }
+.mp-search-wrap input:focus {
+    background: rgba(255,255,255,.1);
+    border-color: var(--m-red);
+    box-shadow: 0 0 0 3px rgba(232,39,75,.12);
+}
+.mp-search-btn {
+    padding: 12px 24px;
+    background: var(--m-red); border: none; border-radius: 50px;
+    font-family: var(--ff-body); font-size: 13.5px; font-weight: 700;
+    color: #fff; cursor: pointer; white-space: nowrap;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    box-shadow: 0 4px 16px rgba(232,39,75,.35);
+}
+.mp-search-btn:hover {
+    background: #c71f40; transform: translateY(-1px);
+    box-shadow: 0 6px 22px rgba(232,39,75,.45);
+}
+/* ── GENRE PILLS ── */
+.mp-genres {
+    background: var(--m-bg2);
+    border-bottom: 1px solid var(--m-border);
+    padding: 0 32px;
+    display: flex; align-items: center; gap: 6px;
+    overflow-x: auto; scrollbar-width: none;
+}
+.mp-genres::-webkit-scrollbar { display: none; }
+.mp-genre-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 13px 16px;
+    font-family: var(--ff-body); font-size: 13px; font-weight: 500;
+    color: var(--m-muted2); white-space: nowrap;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+    flex-shrink: 0;
+}
+.mp-genre-pill i { font-size: 12px; }
+.mp-genre-pill:hover { color: var(--m-text); }
+.mp-genre-pill.active { color: #fff; border-bottom-color: var(--m-red); }
+/* ── CONTENU ── */
+.mp-content { padding: 32px; display: flex; flex-direction: column; gap: 40px; }
+/* Section head */
+.mp-section-head {
+    display: flex; align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 20px; gap: 12px;
+}
+.mp-section-eyebrow {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.8px;
+    margin-bottom: 4px;
+}
+.mp-section-eyebrow::before {
+    content: '';
+    width: 3px; height: 13px; border-radius: 2px;
+}
+.ey-compas { color: var(--m-pink); }
+.ey-compas::before { background: var(--m-pink); }
+.ey-afro   { color: var(--m-gold); }
+.ey-afro::before   { background: var(--m-gold); }
+.ey-evang  { color: #60A5FA; }
+.ey-evang::before  { background: #60A5FA; }
+.mp-section-title {
+    font-family: var(--ff-head);
+    font-size: 28px; letter-spacing: 1.5px;
+    color: #fff; line-height: 1;
+}
+.mp-see-all {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12.5px; font-weight: 600;
+    color: var(--m-muted2); text-decoration: none;
+    padding: 7px 14px;
+    border: 1px solid var(--m-border); border-radius: 20px;
+    transition: all .2s; white-space: nowrap; flex-shrink: 0;
+}
+.mp-see-all:hover {
+    color: #fff; border-color: rgba(255,255,255,.2);
+    background: rgba(255,255,255,.05);
+}
+/* ── MUSIC GRID ── */
+.mp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+    gap: 18px;
+}
+.mp-card {
+    background: var(--m-bg3);
+    border: 1px solid var(--m-border);
+    border-radius: 12px; overflow: hidden;
+    transition: transform .22s, box-shadow .22s, border-color .22s;
+    cursor: pointer;
+}
+.mp-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,.5);
+    border-color: rgba(255,255,255,.12);
+}
+/* Thumb */
+.mp-card__thumb {
+    position: relative; overflow: hidden; aspect-ratio: 1;
+}
+.mp-card__thumb img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform .3s;
+}
+.mp-card:hover .mp-card__thumb img { transform: scale(1.07); }
+/* Overlay play */
+.mp-card__overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,.5);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity .22s;
+}
+.mp-card:hover .mp-card__overlay { opacity: 1; }
+.mp-play-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--m-red); border: none;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 15px; cursor: pointer;
+    transform: scale(.8);
+    transition: transform .22s, box-shadow .22s;
+    box-shadow: 0 4px 16px rgba(232,39,75,.5);
+}
+.mp-card:hover .mp-play-btn { transform: scale(1); }
+.mp-play-btn:hover { transform: scale(1.1) !important; }
+/* Badge */
+.mp-card__badge {
+    position: absolute; top: 8px; left: 8px;
+    font-size: 9px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: .8px;
+    padding: 3px 8px; border-radius: 20px;
+    backdrop-filter: blur(8px);
+}
+.badge-compas { background: rgba(255,64,129,.25); color: #ff80ab; border: 1px solid rgba(255,64,129,.3); }
+.badge-afro   { background: rgba(245,166,35,.25);  color: #ffd080; border: 1px solid rgba(245,166,35,.3); }
+.badge-evang  { background: rgba(96,165,250,.2);   color: #93c5fd; border: 1px solid rgba(96,165,250,.25); }
+/* Info */
+.mp-card__info { padding: 12px 14px; }
+.mp-card__artist {
+    font-size: 13px; font-weight: 600; color: var(--m-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 3px;
+}
+.mp-card__meta {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.mp-card__plays {
+    font-size: 11px; color: var(--m-muted);
+    display: flex; align-items: center; gap: 4px;
+}
+.mp-card__plays i { font-size: 10px; }
+.mp-card__like {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(255,255,255,.05); border: none;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--m-muted); font-size: 12px; cursor: pointer;
+    transition: all .2s;
+}
+.mp-card__like:hover { background: rgba(232,39,75,.15); color: var(--m-red); }
+/* ── ERREUR ── */
+.mp-error {
+    grid-column: 1 / -1;
+    text-align: center; padding: 48px 20px;
+    color: var(--m-muted2);
+}
+.mp-error i {
+    font-size: 40px; color: var(--m-muted);
+    margin-bottom: 14px; display: block;
+}
+.mp-error p { font-size: 14px; }
+/* ════════════════════════════
+   MODAL PLAYLIST
+════════════════════════════ */
+.mp-modal {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(10px);
+    z-index: 700;
+    align-items: center; justify-content: center;
+}
+.mp-modal.is-open { display: flex; }
+.mp-modal__card {
+    background: var(--m-bg3);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 18px; padding: 32px;
+    width: 100%; max-width: 400px;
+    box-shadow: 0 32px 80px rgba(0,0,0,.7);
+    animation: modalIn .28s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(.88) translateY(16px); }
+    to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+.mp-modal__head {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 24px;
+}
+.mp-modal__head h3 {
+    font-family: var(--ff-head);
+    font-size: 22px; letter-spacing: 1px; color: #fff;
+}
+.mp-modal__x {
+    width: 30px; height: 30px; border-radius: 7px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid var(--m-border);
+    color: var(--m-muted2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; transition: all .2s;
+}
+.mp-modal__x:hover { background: var(--m-red); border-color: var(--m-red); color: #fff; }
+.mp-modal__input {
+    width: 100%;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: var(--ff-body); font-size: 14px;
+    color: #fff; outline: none; caret-color: var(--m-red);
+    margin-bottom: 20px;
+    transition: border-color .2s, box-shadow .2s;
+}
+.mp-modal__input::placeholder { color: var(--m-muted); }
+.mp-modal__input:focus {
+    border-color: var(--m-red);
+    box-shadow: 0 0 0 3px rgba(232,39,75,.12);
+}
+.mp-modal__actions { display: flex; gap: 10px; }
+.mp-modal-btn {
+    flex: 1; padding: 11px; border-radius: 10px;
+    font-family: var(--ff-body); font-size: 13.5px;
+    font-weight: 700; border: none; cursor: pointer; transition: all .2s;
+}
+.mp-modal-btn-primary {
+    background: var(--m-red); color: #fff;
+    box-shadow: 0 4px 14px rgba(232,39,75,.3);
+}
+.mp-modal-btn-primary:hover { background: #c71f40; transform: translateY(-1px); }
+.mp-modal-btn-secondary {
+    background: rgba(255,255,255,.06); color: var(--m-muted2);
+    border: 1px solid var(--m-border);
+}
+.mp-modal-btn-secondary:hover { background: rgba(255,255,255,.1); color: #fff; }
+/* ════════════════════════════
+   MES PLAYLISTS (sidebar)
+════════════════════════════ */
+.liste-mes-playlists {
+    list-style: none;
+    padding: 4px 10px 14px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.pl-item { width: 100%; }
+.pl-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    text-decoration: none;
+    color: var(--m-muted2);
     font-size: 13px;
-  }
-
-  .table-wrapper,
-  .table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* pour iOS */
-  }
-
-
+    font-weight: 500;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: background .18s, color .18s, border-color .18s;
+    white-space: nowrap;
 }
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* pour un scroll fluide sur iOS */
+.pl-link:hover {
+    background: rgba(255,255,255,.06);
+    color: var(--m-text);
+    border-color: var(--m-border);
 }
-
+.pl-ico {
+    width: 26px; height: 26px;
+    flex-shrink: 0;
+    border-radius: 7px;
+    background: linear-gradient(135deg, var(--m-purple), var(--m-red));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px;
+}
+.pl-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.pl-count {
+    flex-shrink: 0;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--m-muted);
+    background: rgba(255,255,255,.06);
+    border-radius: 20px;
+    padding: 2px 8px;
+    min-width: 20px;
+    text-align: center;
+}
+.pl-link:hover .pl-count { color: var(--m-text); }
+.pl-empty {
+    padding: 10px 12px;
+    font-size: 12.5px;
+    color: var(--m-muted);
+    font-style: italic;
+}
+.mp-sidebar.collapsed .liste-mes-playlists { display: none; }
+/* ════════════════════════════
+   MODAL — MUSIQUES D'UNE PLAYLIST
+════════════════════════════ */
+.mp-modal__card--wide { max-width: 480px; }
+.pl-track-list {
+    list-style: none;
+    margin: 0 0 20px;
+    padding: 0;
+    max-height: 360px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.pl-track {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.04);
+    transition: background .15s;
+}
+.pl-track:hover { background: rgba(255,255,255,.08); }
+.pl-track a {
+    display: flex; align-items: center; gap: 10px;
+    flex: 1; min-width: 0;
+    text-decoration: none; color: inherit;
+}
+.pl-track__cover {
+    width: 42px; height: 42px; border-radius: 8px;
+    background-size: cover; background-position: center;
+    flex-shrink: 0;
+}
+.pl-track__info { min-width: 0; }
+.pl-track__title {
+    font-size: 13.5px; font-weight: 700; color: #fff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pl-track__artist {
+    font-size: 11.5px; color: var(--m-muted2);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pl-track__remove {
+    background: none; border: none; color: var(--m-muted);
+    cursor: pointer; font-size: 13px; padding: 6px; flex-shrink: 0;
+}
+.pl-track__remove:hover { color: var(--m-red); }
+.pl-track-empty { padding: 30px 10px; text-align: center; color: var(--m-muted); font-size: 13.5px; }
+/* ════════════════════════════
+   RESPONSIVE
+════════════════════════════ */
+@media (max-width: 900px) {
+    .mp-hero     { padding: 24px 20px; }
+    .mp-genres   { padding: 0 20px; }
+    .mp-content  { padding: 20px; gap: 32px; }
+    .mp-grid     { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+}
 @media (max-width: 600px) {
-  .table-trending {
-    width: 600px; /* largeur fixe si trop de colonnes */
-    font-size: 13px;
-  }
+    .mp-hero     { padding: 18px 16px; }
+    .mp-search   { flex-direction: column; }
+    .mp-search-btn { width: 100%; text-align: center; justify-content: center; }
+    .mp-content  { padding: 14px; gap: 24px; }
+    .mp-grid     { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .mp-section-title { font-size: 22px; }
 }
+@media (max-width: 380px) {
+    .mp-grid { grid-template-columns: 1fr; }
+}
+    .np-welcome {
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+        max-width:480px;
+        margin:0 auto;
+        padding-top:16px;
+    }
+    .np-welcome-avatar {
+        width:32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink:0;
+        background: #222;
+    }
+    .np-welcome-text {
+        color: #999;
+        font-size: 13px;
+        margin:0;
+    }
+    .mp-mobile-sidebar-btn { display: none; }
+    .mp-sidebar-backdrop { display: none; }
+    @media (max-width: 768px) { #sbToggle{display:none;}
+        .mp-sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            height: calc(100vh - 60px);
+            width: 230px;
+            transform: translateX(-100%);
+            transition: transform .3s cubic-bezier(.4,0,.2,1);
+            z-index: 200;
+        }
+        .mp-sidebar.mobile-open {
+            transform: translateX(0);
+        }
+        .mp-sidebar.collapsed {
+            width: 230px; /* neutralise le mode "collapsed" desktop sur mobile */
+        }
+        .mp-mobile-sidebar-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: fixed;
+            top: 70px;
+            left: 12px;
+            z-index: 120;
+            background: var(--m-red);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .mp-sidebar-backdrop.active {
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 150;
+        }
+    }
 </style>
+<!-- ══ PAGE ══ -->
 
-
-
-<!--tableau-->
-<h2 class="section-title">🎵 New Songs</h2>
-<div class="table-wrapper">
-<table class="table-trending">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th></th>
-      <th>Titre</th>
-      <th>Artiste</th>
-      <th>Durée</th>
-      <th>Télécharger</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for song in new_songs %}
-    <tr class="song-row" data-audio="{{ song.Ecouter }}" data-title="{{ song.Titre }}" data-artist="{{ song.Artiste }}">
-      <td>{{ song.id }}</td>
-      <td><img src="{{ song.image }}" class="song-img" alt="cover"></td>
-      <td class="hover-title">
-        {{ song.Titre }}
-        <div class="mini-player">
-          <audio src="{{ song.Ecouter }}" controls preload="none"></audio>
+<div class="mp-page">
+    <!-- ══ TOGGLE SIDEBAR MOBILE ══ -->
+    <button type="button" id="mobileSidebarToggle" class="mp-mobile-sidebar-btn">
+        <i class="fas fa-bars"></i> <!--Menu navigation-->
+    </button>
+    <div class="mp-sidebar-backdrop" id="mpSidebarBackdrop"></div>
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="mp-sidebar" id="mpSidebar">
+           <div class="np-welcome">
+                    <img src="{{request.user.profil.get_avatar_url}}" alt="{{request.user.username}}" class="np-welcome-avatar">
+                    {% if request.user.is_authenticated %}
+                        <p class="np-welcome-text">Bienvenue, {{ request.user.username }}</p>
+                    {% endif %}
+                </div>
+        <div class="sb-head">
+            <span class="sb-head-title">MUSIQUE</span>
+            <button type="button" class="sb-toggle" id="sbToggle" aria-label="Réduire">
+                <i class="fas fa-chevron-left" id="sbToggleIcon"></i>
+            </button>
         </div>
-      </td>
-      <td>{{ song.Artiste }}</td>
-      <td>{{ song.duree }}</td>
-      <td>
-        <a href="{{ song.Telecharger }}" download>
-          <img src="{{ url_for('static', filename='images/download.png') }}" alt="Télécharger" class="btn-icon">
-        </a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+        {% if 'user' in session %}
+        <div class="sb-user">
+            <div class="sb-user-inner">
+                <div class="sb-av">{{ session.user.0|upper }}</div>
+                <span class="sb-uname">{{ session.user }}</span>
+            </div>
+        </div>
+        {% endif %}
+        <div class="sb-section">Navigation</div>
+        <ul class="sb-nav">
+            <li>
+                <a href="{% url 'ActuWebApp:aff_mus' %}" class="active">
+                    <i class="fas fa-house sb-ico"></i>
+                    <span class="sb-lbl">Accueil</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'ActuWebApp:tendance' %}">
+                    <i class="fas fa-fire sb-ico" style="color:var(--m-red)"></i>
+                    <span class="sb-lbl">Tendances</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'ActuWebApp:nouveautes' %}">
+                    <i class="fas fa-star sb-ico" style="color:var(--m-gold)"></i>
+                    <span class="sb-lbl">Nouveautés</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'ActuWebApp:actumusiques' %}">
+                    <i class="fas fa-newspaper sb-ico"></i>
+                    <span class="sb-lbl">Actualités</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'ActuWebApp:videosyt' %}">
+                    <i class="fab fa-youtube sb-ico" style="color:#FF0000"></i>
+                    <span class="sb-lbl">Vidéos</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sb-section">Bibliothèque</div>
+        <ul class="sb-nav">
+            <li>
+                <a href="{% url 'ActuWebApp:modal_creer_play' %}"
+                hx-get="{% url 'ActuWebApp:modal_creer_play' %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML">
+                <i	class="fas fa-plus"></i>Créer une playlist
+                </a>
+            </li>
+        </ul>
+        <ul id="liste-mes-playlists" class="liste-mes-playlists" hx-get="{% url 'ActuWebApp:fragment_mes_playlists' %}" hx-trigger="load" hx-swap="innerHTML">
+<!--            remplir automatiquement-->
+        </ul>
+    </aside>
+    <!-- ══ MAIN ══ -->
+    <div class="mp-main">
+        <!-- HERO -->
+        <div class="mp-hero">
+            <div class="mp-hero__inner">
+                <div class="mp-hero__eyebrow">
+                    <i class="fas fa-music"></i> ActuWebMedia Musiques
+                </div>
+                <h1 class="mp-hero__title"><em>Nouveautés</em></h1>
+                <p class="mp-hero__sub">
+                Les nouveautés—
+                cliquez sur une ligne pour écouter.
+                </p>
+<!--                <form class="mp-search" action="" method="GET">-->
+<!--                    <div class="mp-search-wrap">-->
+<!--                        <i class="fas fa-magnifying-glass"></i>-->
+<!--                        <input type="text" name="q" hx-get="{% url 'ActuWebApp:rechmus' %}" hx-trigger="keyup changed delay:400ms,search"-->
+<!--                               hx-target="#resultats-recherche" hx-swap="innerHTML"-->
+<!--                               placeholder="Rechercher un artiste, un titre…"-->
+<!--                               autocomplete="off">-->
+<!--                    </div>-->
+<!--                    <button type="submit" class="mp-search-btn">-->
+<!--                        <i class="fas fa-search"></i> Rechercher-->
+<!--                    </button>-->
+<!--                </form>-->
+            </div>
+        </div>
+        <div id="resultats-recherche">
+<!--            les resultats htmx s'affichent-->
+        </div>
+        <!-- GENRE PILLS -->
+        <div class="mp-genres">
+            <a href="{% url 'ActuWebApp:aff_mus' %}" class="mp-genre-pill active">
+                <i class="fas fa-border-all"></i> Tout
+            </a>
+            <a href="#section-compas" class="mp-genre-pill">
+                <i class="fas fa-guitar"></i> Kompa
+            </a>
+            <a href="#section-afro" class="mp-genre-pill">
+                <i class="fas fa-drum"></i> Afrobeat
+            </a>
+            <a href="#section-evang" class="mp-genre-pill">
+                <i class="fas fa-music"></i> Évangélique
+            </a>
+            <a href="{% url 'ActuWebApp:tendance' %}" class="mp-genre-pill">
+                <i class="fas fa-fire" style="color:var(--m-red)"></i> Tendances
+            </a>
+            <a href="{% url 'ActuWebApp:nouveautes' %}" class="mp-genre-pill">
+                <i class="fas fa-star" style="color:var(--m-gold)"></i> Nouveautés
+            </a>
+                <a href="{% url 'ActuWebApp:modal_creer_play' %}"
+                hx-get="{% url 'ActuWebApp:modal_creer_play' %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML" class="mp-genre-pill">
+                <i	class="fas fa-plus" style="color:var(--m-gold)"></i>Créer une playlist
+                </a>
+        </div>
+        <!-- CONTENU -->
+        <div class="mp-content" id="mp-content">
+            <!-- ══ COMPAS ══ -->
+            <section id="section-compas">
+                <div class="mp-grid">
+        {% for musique in nouveautes %}
+        <div class="mp-card">
+            <a href="{% url 'ActuWebApp:play_mus' musique.slug %}" style="display:contents">
+                <div class="mp-card__thumb">
+                    <img src="{{ musique.image_url }}" alt="{{ musique.titre }}" loading="lazy">
+                    <div class="mp-card__overlay">
+                        <button class="mp-play-btn" aria-label="Écouter">
+                            <i class="fas fa-play"></i>
+                        </button>
+                  </div>
+                </div>
+            </a>
+            <div class="mp-card__info">
+                <div class="mp-card__artist">{{ musique.artiste }}</div>
+            </div>
+        </div>
+        {% empty %}
+        <p>Aucune tendance musicale.</p>
+        {% endfor %}
+    </div>
+            </section>
+
+
+        </div><!-- /mp-content -->
+    </div><!-- /mp-main -->
 </div>
-
-<!--lecteur-->
-
-<!-- Lecteur audio global -->
-<div id="global-player">
-  <p id="now-playing"></p>
-  <audio id="main-audio" controls style="width: 100%;"></audio>
-</div>
+<div id="modal-container"></div>
+{% endblock %}
 
 
+<!-- Conteneur des modals HTMX (création de playlist, contenu d'une playlist, etc.) -->
 
+
+{% block scripts %}
 <script>
-  const rows = document.querySelectorAll(".song-row");
-  const mainAudio = document.getElementById("main-audio");
-  const globalPlayer = document.getElementById("global-player");
-  const nowPlaying = document.getElementById("now-playing");
-
-  rows.forEach(row => {
-    row.addEventListener("click", () => {
-      const audioSrc = row.getAttribute("data-audio");
-      const title = row.getAttribute("data-title");
-      const artist = row.getAttribute("data-artist");
-
-      mainAudio.src = audioSrc;
-      nowPlaying.textContent = `🎶 En lecture : ${title} - ${artist}`;
-      globalPlayer.style.display = "block";
-      mainAudio.play();
+(function () {
+    function getCookie(name) {
+        const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return match ? decodeURIComponent(match[2]) : null;
+    }
+    document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] = getCookie('csrftoken');
     });
-  });
+    /* ── Sidebar collapse (délégation : résiste aux ID dupliqués et aux re-swaps HTMX) ── */
+    document.addEventListener('click', (e) => {
+        const toggleBtn = e.target.closest('#sbToggle');
+        if (!toggleBtn) return;
+        const sidebar = toggleBtn.closest('.mp-sidebar') || document.getElementById('mpSidebar');
+        if (!sidebar) return;
+        const collapsed = sidebar.classList.toggle('collapsed');
+        const icon = toggleBtn.querySelector('#sbToggleIcon') || toggleBtn.querySelector('i');
+        if (icon) icon.className = collapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+    });
+    /* ── Sidebar mobile : ouverture/fermeture en tiroir ── */
+    const mobileBtn = document.getElementById('mobileSidebarToggle');
+    const backdrop  = document.getElementById('mpSidebarBackdrop');
+    const sidebarEl = document.getElementById('mpSidebar');
+    mobileBtn?.addEventListener('click', () => {
+        sidebarEl.classList.add('mobile-open');
+        backdrop.classList.add('active');
+    });
+    backdrop?.addEventListener('click', () => {
+        sidebarEl.classList.remove('mobile-open');
+        backdrop.classList.remove('active');
+    });
+    /* ── Genre pills scroll-spy ── */
+    const pills    = document.querySelectorAll('.mp-genre-pill[href^="#"]');
+    const sections = [];
+    pills.forEach(p => {
+        const id = p.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) sections.push({ pill: p, el });
+    });
+    if (sections.length) {
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (!e.isIntersecting) return;
+                pills.forEach(p => p.classList.remove('active'));
+                const f = sections.find(s => s.el === e.target);
+                if (f) f.pill.classList.add('active');
+            });
+        }, { threshold: .3 });
+        sections.forEach(s => io.observe(s.el));
+    }
+    /* ── Smooth scroll pills ── */
+    pills.forEach(p => {
+        p.addEventListener('click', e => {
+            const href = p.getAttribute('href');
+            if (href.startsWith('#')) {
+                e.preventDefault();
+                document.querySelector(href)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+    /* ── Like buttons ── */
+    document.querySelectorAll('.mp-card__like').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.preventDefault();
+            const icon  = btn.querySelector('i');
+            const liked = icon.classList.toggle('fas');
+            icon.classList.toggle('far', !liked);
+            icon.style.color     = liked ? 'var(--m-red)' : '';
+            btn.style.background = liked ? 'rgba(232,39,75,.15)' : '';
+        });
+    });
+    /* ── Gestion générique des modals injectés par HTMX (créer playlist / voir playlist) ── */
+    const modalContainer = document.getElementById('modal-container');
+    // Fonction globale : n'importe quel bouton/template peut appeler closePlaylistModal()
+    // via onclick="closePlaylistModal()" — même les modals que je n'ai pas écrits moi-même.
+    window.closePlaylistModal = function () {
+        const mc = document.getElementById('modal-container');
+        if (mc) mc.innerHTML = '';
+    };
+    // Tout ce qui suit dépend de #modal-container : on ne l'exécute que s'il existe
+    // sur la page (évite une erreur si ce script est un jour partagé sur une page qui
+    // n'a pas ce conteneur).
+    if (modalContainer) {
+        function openInjectedModal() {
+            const modal = modalContainer.querySelector('.mp-modal');
+            if (modal) modal.classList.add('is-open');
+        }
+        // Ouvre le modal dès qu'il est injecté dans #modal-container
+        document.body.addEventListener('htmx:afterSwap', (e) => {
+            if (e.detail.target === modalContainer) openInjectedModal();
+        });
+        // Ferme le modal : clic sur le fond OU sur un élément .mp-modal__x / [data-close-modal],
+        // où qu'il se trouve dans la page (délégation sur document, pas seulement modalContainer,
+        // au cas où le fragment injecté contiendrait sa propre structure imbriquée).
+        document.addEventListener('click', (e) => {
+            if (!modalContainer.contains(e.target)) return;
+            const isBackdrop = e.target.classList.contains('mp-modal');
+            const isCloseBtn = e.target.closest('.mp-modal__x, [data-close-modal]');
+            if (isBackdrop || isCloseBtn) {
+                e.preventDefault();
+                modalContainer.innerHTML = '';
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') modalContainer.innerHTML = '';
+        });
+    }
+    /* ── Lazy images fade-in ── */
+    if ('IntersectionObserver' in window) {
+        document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+            img.style.opacity    = '0';
+            img.style.transition = 'opacity .3s';
+            const io = new IntersectionObserver(([e]) => {
+                if (!e.isIntersecting) return;
+                img.addEventListener('load', () => img.style.opacity = '1');
+                if (img.complete) img.style.opacity = '1';
+                io.disconnect();
+            }, { rootMargin: '80px' });
+            io.observe(img);
+        });
+    }
+})();
 </script>
-
 
 {% endblock %}

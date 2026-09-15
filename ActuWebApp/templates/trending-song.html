@@ -1,610 +1,940 @@
 {% extends 'base.html' %}
 
-{% block title %}Trending Songs — ActuWebMedia{% endblock %}
-
+{% block title %}Tendances — ActuWebMedia{% endblock %}
+{% load static %}
 {% block link %}
-<link rel="icon" href="{{ url_for('static', filename='images/music.ico') }}" type="image/x-icon">
+<link rel="icon" href="{% static 'images/music.ico'%}" type="image/x-icon">
 {% endblock %}
 
 {% block content %}
 <style>
 :root {
-    --tr-bg:     #0A0A0F;
-    --tr-bg2:    #111118;
-    --tr-bg3:    #18181F;
-    --tr-bg4:    #1E1E28;
-    --tr-border: rgba(255,255,255,.07);
-    --tr-red:    #E8274B;
-    --tr-gold:   #F5A623;
-    --tr-text:   #E2E2EE;
-    --tr-muted:  #64748B;
-    --tr-muted2: #94A3B8;
-    --ff-head:   'Bebas Neue', sans-serif;
-    --ff-body:   'Outfit', sans-serif;
+    --m-bg:     #0A0A0F;
+    --m-bg2:    #111118;
+    --m-bg3:    #18181F;
+    --m-bg4:    #1E1E28;
+    --m-border: rgba(255,255,255,.07);
+    --m-red:    #E8274B;
+    --m-gold:   #F5A623;
+    --m-pink:   #FF4081;
+    --m-purple: #7C3AED;
+    --m-text:   #E2E2EE;
+    --m-muted:  #64748B;
+    --m-muted2: #94A3B8;
+    --ff-head:  'Bebas Neue', sans-serif;
+    --ff-body:  'Outfit', sans-serif;
 }
-
-/* ══ PAGE ══ */
-.tr-page {
-    background: var(--tr-bg);
-    font-family: var(--ff-body);
+/* ── LAYOUT ── */
+.mp-page {
+    display: flex;
     min-height: 100vh;
-    padding-bottom: 120px;
+    background: var(--m-bg);
+    font-family: var(--ff-body);
 }
-
-/* ══ HERO ══ */
-.tr-hero {
-    background: linear-gradient(135deg, #0F0F1A 0%, #1A0A0E 50%, #0A0F1A 100%);
-    border-bottom: 1px solid var(--tr-border);
-    padding: 44px 32px 40px;
-    text-align: center;
+/* ════════════════════════════
+   SIDEBAR
+════════════════════════════ */
+.mp-sidebar {
+    width: 230px;
+    flex-shrink: 0;
+    background: var(--m-bg2);
+    border-right: 1px solid var(--m-border);
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    transition: width .3s cubic-bezier(.4,0,.2,1);
+    z-index: 50;
+}
+.mp-sidebar.collapsed { width: 64px; }
+.mp-sidebar::-webkit-scrollbar { width: 3px; }
+.mp-sidebar::-webkit-scrollbar-thumb { background: var(--m-red); border-radius: 3px; }
+.sb-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 16px 12px;
+    border-bottom: 1px solid var(--m-border);
+    flex-shrink: 0;
+}
+.sb-head-title {
+    font-family: var(--ff-head);
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: var(--m-text);
+    white-space: nowrap;
+    overflow: hidden;
+    transition: opacity .2s;
+}
+.mp-sidebar.collapsed .sb-head-title { opacity: 0; width: 0; }
+.sb-toggle {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.05);
+    border: 1px solid var(--m-border);
+    border-radius: 7px;
+    color: var(--m-muted2);
+    font-size: 11px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background .2s, color .2s;
+}
+.sb-toggle:hover { background: var(--m-red); color: #fff; border-color: var(--m-red); }
+/* User */
+.sb-user {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--m-border);
+    flex-shrink: 0;
+}
+.sb-user-inner {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    background: rgba(232,39,75,.07);
+    border: 1px solid rgba(232,39,75,.14);
+    border-radius: 10px;
+}
+.sb-av {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--m-red), var(--m-purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+}
+.sb-uname {
+    font-size: 12.5px; font-weight: 600;
+    color: var(--m-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: opacity .2s;
+}
+.mp-sidebar.collapsed .sb-uname { opacity: 0; width: 0; }
+/* Nav */
+.sb-section {
+    padding: 12px 14px 4px;
+    font-size: 9.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--m-muted);
+    white-space: nowrap; overflow: hidden;
+    transition: opacity .2s;
+}
+.mp-sidebar.collapsed .sb-section { opacity: 0; }
+.sb-nav { list-style: none; padding: 6px 10px; }
+.sb-nav li { margin-bottom: 2px; }
+.sb-nav a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    font-size: 13.5px; font-weight: 500;
+    color: var(--m-muted2);
+    text-decoration: none;
+    transition: background .18s, color .18s;
+    white-space: nowrap; overflow: hidden;
+}
+.sb-nav a:hover { background: rgba(255,255,255,.06); color: var(--m-text); }
+.sb-nav a.active { background: rgba(232,39,75,.12); color: #fff; }
+.sb-nav a.active .sb-ico { color: var(--m-red); }
+.sb-ico { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+.sb-lbl { transition: opacity .2s; }
+.mp-sidebar.collapsed .sb-lbl { opacity: 0; width: 0; overflow: hidden; }
+/* ════════════════════════════
+   MAIN
+════════════════════════════ */
+.mp-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+/* ── HERO ── */
+.mp-hero {
+    background: linear-gradient(135deg, #0F0F1A 0%, #1A0A1E 50%, #0A0F1A 100%);
+    border-bottom: 1px solid var(--m-border);
+    padding: 36px 32px;
     position: relative;
     overflow: hidden;
 }
-
-.tr-hero::before {
+.mp-hero::before {
     content: '';
     position: absolute;
-    top: -80px; left: 50%;
-    transform: translateX(-50%);
-    width: 600px; height: 360px;
-    background: radial-gradient(ellipse, rgba(232,39,75,.1) 0%, transparent 65%);
+    top: -60px; left: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(232,39,75,.14) 0%, transparent 70%);
     pointer-events: none;
 }
-
-.tr-hero::after {
+.mp-hero::after {
     content: '';
     position: absolute;
-    bottom: -50px; right: 6%;
+    bottom: -40px; right: 8%;
     width: 220px; height: 220px;
-    background: radial-gradient(circle, rgba(245,166,35,.08) 0%, transparent 65%);
+    background: radial-gradient(circle, rgba(124,58,237,.1) 0%, transparent 70%);
     pointer-events: none;
 }
-
-.tr-hero__inner { position: relative; z-index: 1; }
-
-.tr-hero__icon {
-    width: 68px; height: 68px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, rgba(232,39,75,.15), rgba(245,166,35,.1));
-    border: 1px solid rgba(232,39,75,.25);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 18px;
-    font-size: 26px; color: var(--tr-red);
-    animation: trPulse 3s ease-in-out infinite;
-}
-
-@keyframes trPulse {
-    0%,100% { box-shadow: 0 0 20px rgba(232,39,75,.1); }
-    50%      { box-shadow: 0 0 50px rgba(232,39,75,.28); }
-}
-
-.tr-hero__eyebrow {
+.mp-hero__inner { position: relative; z-index: 1; }
+.mp-hero__eyebrow {
     display: inline-flex; align-items: center; gap: 8px;
     font-family: var(--ff-head);
-    font-size: 12px; letter-spacing: 3px;
-    color: var(--tr-red); text-transform: uppercase;
-    margin-bottom: 12px;
+    font-size: 12px; letter-spacing: 2.5px;
+    color: var(--m-red); text-transform: uppercase;
+    margin-bottom: 10px;
 }
-
-.tr-hero__eyebrow::before {
+.mp-hero__eyebrow::before {
     content: '';
     width: 3px; height: 14px;
-    background: var(--tr-red); border-radius: 2px;
+    background: var(--m-red); border-radius: 2px;
 }
-
-.tr-hero__title {
+.mp-hero__title {
     font-family: var(--ff-head);
-    font-size: clamp(36px, 6vw, 64px);
-    letter-spacing: 3px; color: #fff; line-height: 1;
-    margin-bottom: 8px;
+    font-size: clamp(32px, 5vw, 54px);
+    letter-spacing: 2px; color: #fff; line-height: 1;
+    margin-bottom: 6px;
 }
-
-.tr-hero__title em { font-style: normal; color: var(--tr-red); }
-
-.tr-hero__sub {
-    font-size: 14px; color: var(--tr-muted2);
-    max-width: 460px; margin: 0 auto 20px;
-    line-height: 1.7;
+.mp-hero__title em { font-style: normal; color: var(--m-red); }
+.mp-hero__sub {
+    font-size: 14px; color: var(--m-muted2);
+    margin-bottom: 28px; max-width: 480px;
 }
-
-/* Stats */
-.tr-hero__stats {
-    display: flex; flex-wrap: wrap;
-    justify-content: center; gap: 24px;
+/* Search */
+.mp-search { display: flex; align-items: center; gap: 10px; max-width: 560px; }
+.mp-search-wrap { flex: 1; position: relative; display: flex; align-items: center; }
+.mp-search-wrap i {
+    position: absolute; left: 16px;
+    color: var(--m-muted); font-size: 14px; pointer-events: none;
 }
-
-.tr-stat {
-    display: flex; align-items: center; gap: 7px;
-    font-size: 13px; color: var(--tr-muted2);
+.mp-search-wrap input {
+    width: 100%;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 50px;
+    padding: 12px 20px 12px 44px;
+    font-family: var(--ff-body); font-size: 14px;
+    color: #fff; outline: none; caret-color: var(--m-red);
+    transition: border-color .2s, background .2s, box-shadow .2s;
 }
-
-.tr-stat i { color: var(--tr-red); font-size: 12px; }
-.tr-stat strong { color: var(--tr-text); font-weight: 600; }
-
-/* ══ CONTENU ══ */
-.tr-content {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 32px 28px;
+.mp-search-wrap input::placeholder { color: var(--m-muted); }
+.mp-search-wrap input:focus {
+    background: rgba(255,255,255,.1);
+    border-color: var(--m-red);
+    box-shadow: 0 0 0 3px rgba(232,39,75,.12);
 }
-
-.tr-section-head {
-    display: flex; align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px; gap: 12px; flex-wrap: wrap;
+.mp-search-btn {
+    padding: 12px 24px;
+    background: var(--m-red); border: none; border-radius: 50px;
+    font-family: var(--ff-body); font-size: 13.5px; font-weight: 700;
+    color: #fff; cursor: pointer; white-space: nowrap;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    box-shadow: 0 4px 16px rgba(232,39,75,.35);
 }
-
-.tr-section-label {
-    display: flex; align-items: center; gap: 10px;
+.mp-search-btn:hover {
+    background: #c71f40; transform: translateY(-1px);
+    box-shadow: 0 6px 22px rgba(232,39,75,.45);
 }
-
-.tr-section-label::before {
-    content: '';
-    width: 3px; height: 22px;
-    background: var(--tr-red); border-radius: 2px;
+/* ── GENRE PILLS ── */
+.mp-genres {
+    background: var(--m-bg2);
+    border-bottom: 1px solid var(--m-border);
+    padding: 0 32px;
+    display: flex; align-items: center; gap: 6px;
+    overflow-x: auto; scrollbar-width: none;
 }
-
-.tr-section-label h2 {
-    font-family: var(--ff-head);
-    font-size: 22px; letter-spacing: 1.5px; color: #fff;
-}
-
-.tr-count {
-    background: rgba(232,39,75,.1);
-    border: 1px solid rgba(232,39,75,.2);
-    color: var(--tr-red);
-    font-size: 11px; font-weight: 700;
-    padding: 3px 10px; border-radius: 20px;
-}
-
-/* ══ TABLE ══ */
-.tr-table-wrap {
-    width: 100%; overflow-x: auto;
-    border-radius: 14px;
-    border: 1px solid var(--tr-border);
-    -webkit-overflow-scrolling: touch;
-}
-
-.tr-table-wrap::-webkit-scrollbar { height: 4px; }
-.tr-table-wrap::-webkit-scrollbar-thumb {
-    background: rgba(232,39,75,.3); border-radius: 4px;
-}
-
-.tr-table {
-    width: 100%; border-collapse: collapse;
-    min-width: 560px;
-}
-
-/* Head */
-.tr-table thead {
-    background: var(--tr-bg4);
-    border-bottom: 1px solid var(--tr-border);
-}
-
-.tr-table thead th {
-    padding: 14px 16px;
-    font-family: var(--ff-head);
-    font-size: 11px; letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--tr-muted); font-weight: 700;
-    text-align: left; white-space: nowrap;
-}
-
-.tr-table thead th:first-child { width: 48px; text-align: center; }
-.tr-table thead th:nth-child(2) { width: 64px; }
-
-/* Rows */
-.tr-row {
-    border-bottom: 1px solid var(--tr-border);
-    cursor: pointer;
-    transition: background .18s;
-}
-
-.tr-row:last-child { border-bottom: none; }
-.tr-row:hover { background: rgba(255,255,255,.04); }
-.tr-row.is-playing { background: rgba(232,39,75,.06); }
-
-.tr-table td {
-    padding: 13px 16px;
-    font-size: 13.5px; color: var(--tr-muted2);
-    vertical-align: middle;
-}
-
-/* Index / equalizer */
-.tr-idx {
-    text-align: center;
-    font-family: var(--ff-head);
-    font-size: 15px; letter-spacing: .5px;
-    color: var(--tr-muted);
-}
-
-/* Top 3 */
-.tr-row[data-rank="1"] .tr-idx-num { color: var(--tr-gold); font-size: 18px; }
-.tr-row[data-rank="2"] .tr-idx-num { color: #C0C0C0; }
-.tr-row[data-rank="3"] .tr-idx-num { color: #CD7F32; }
-.tr-row.is-playing .tr-idx-num { display: none; }
-
-.tr-eq {
-    display: none;
-    align-items: flex-end; gap: 2px; height: 14px;
-    justify-content: center;
-}
-
-.tr-row.is-playing .tr-eq { display: flex; }
-
-.tr-eq span {
-    display: block; width: 3px;
-    background: var(--tr-red); border-radius: 2px;
-    animation: trEq .7s ease-in-out infinite alternate;
-}
-
-.tr-eq span:nth-child(1) { height: 5px;  animation-delay: 0s; }
-.tr-eq span:nth-child(2) { height: 12px; animation-delay: .15s; }
-.tr-eq span:nth-child(3) { height: 8px;  animation-delay: .3s; }
-
-@keyframes trEq {
-    from { transform: scaleY(.35); }
-    to   { transform: scaleY(1); }
-}
-
-/* Cover */
-.tr-cover {
-    width: 46px; height: 46px;
-    border-radius: 8px; object-fit: cover;
-    border: 1px solid var(--tr-border);
-    display: block;
-    transition: transform .2s;
-}
-
-.tr-row:hover .tr-cover { transform: scale(1.06); }
-
-/* Titre */
-.tr-title {
-    font-size: 14px; font-weight: 600;
-    color: var(--tr-text);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    max-width: 240px;
-    transition: color .2s;
-}
-
-.tr-row.is-playing .tr-title { color: var(--tr-red); }
-.tr-row:hover .tr-title { color: #fff; }
-
-/* Artiste */
-.tr-artist {
-    font-size: 13.5px; font-weight: 500;
-    color: var(--tr-muted2);
-    white-space: nowrap;
-}
-
-/* Durée */
-.tr-dur {
-    font-family: var(--ff-head);
-    font-size: 13px; letter-spacing: .5px;
-    color: var(--tr-muted);
-    white-space: nowrap;
-}
-
-/* Télécharger */
-.tr-dl {
+.mp-genres::-webkit-scrollbar { display: none; }
+.mp-genre-pill {
     display: inline-flex; align-items: center; gap: 6px;
-    padding: 6px 14px;
-    background: rgba(232,39,75,.08);
-    border: 1px solid rgba(232,39,75,.18);
-    border-radius: 20px;
-    font-size: 12px; font-weight: 700;
-    color: var(--tr-red); text-decoration: none;
-    transition: background .2s, border-color .2s, color .2s;
+    padding: 13px 16px;
+    font-family: var(--ff-body); font-size: 13px; font-weight: 500;
+    color: var(--m-muted2); white-space: nowrap;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+    flex-shrink: 0;
+}
+.mp-genre-pill i { font-size: 12px; }
+.mp-genre-pill:hover { color: var(--m-text); }
+.mp-genre-pill.active { color: #fff; border-bottom-color: var(--m-red); }
+/* ── CONTENU ── */
+.mp-content { padding: 32px; display: flex; flex-direction: column; gap: 40px; }
+/* Section head */
+.mp-section-head {
+    display: flex; align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 20px; gap: 12px;
+}
+.mp-section-eyebrow {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.8px;
+    margin-bottom: 4px;
+}
+.mp-section-eyebrow::before {
+    content: '';
+    width: 3px; height: 13px; border-radius: 2px;
+}
+.ey-compas { color: var(--m-pink); }
+.ey-compas::before { background: var(--m-pink); }
+.ey-afro   { color: var(--m-gold); }
+.ey-afro::before   { background: var(--m-gold); }
+.ey-evang  { color: #60A5FA; }
+.ey-evang::before  { background: #60A5FA; }
+.mp-section-title {
+    font-family: var(--ff-head);
+    font-size: 28px; letter-spacing: 1.5px;
+    color: #fff; line-height: 1;
+}
+.mp-see-all {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12.5px; font-weight: 600;
+    color: var(--m-muted2); text-decoration: none;
+    padding: 7px 14px;
+    border: 1px solid var(--m-border); border-radius: 20px;
+    transition: all .2s; white-space: nowrap; flex-shrink: 0;
+}
+.mp-see-all:hover {
+    color: #fff; border-color: rgba(255,255,255,.2);
+    background: rgba(255,255,255,.05);
+}
+/* ── MUSIC GRID ── */
+.mp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+    gap: 18px;
+}
+.mp-card {
+    background: var(--m-bg3);
+    border: 1px solid var(--m-border);
+    border-radius: 12px; overflow: hidden;
+    transition: transform .22s, box-shadow .22s, border-color .22s;
+    cursor: pointer;
+}
+.mp-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,.5);
+    border-color: rgba(255,255,255,.12);
+}
+/* Thumb */
+.mp-card__thumb {
+    position: relative; overflow: hidden; aspect-ratio: 1;
+}
+.mp-card__thumb img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform .3s;
+}
+.mp-card:hover .mp-card__thumb img { transform: scale(1.07); }
+/* Overlay play */
+.mp-card__overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,.5);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity .22s;
+}
+.mp-card:hover .mp-card__overlay { opacity: 1; }
+.mp-play-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--m-red); border: none;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 15px; cursor: pointer;
+    transform: scale(.8);
+    transition: transform .22s, box-shadow .22s;
+    box-shadow: 0 4px 16px rgba(232,39,75,.5);
+}
+.mp-card:hover .mp-play-btn { transform: scale(1); }
+.mp-play-btn:hover { transform: scale(1.1) !important; }
+/* Badge */
+.mp-card__badge {
+    position: absolute; top: 8px; left: 8px;
+    font-size: 9px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: .8px;
+    padding: 3px 8px; border-radius: 20px;
+    backdrop-filter: blur(8px);
+}
+.badge-compas { background: rgba(255,64,129,.25); color: #ff80ab; border: 1px solid rgba(255,64,129,.3); }
+.badge-afro   { background: rgba(245,166,35,.25);  color: #ffd080; border: 1px solid rgba(245,166,35,.3); }
+.badge-evang  { background: rgba(96,165,250,.2);   color: #93c5fd; border: 1px solid rgba(96,165,250,.25); }
+/* Info */
+.mp-card__info { padding: 12px 14px; }
+.mp-card__artist {
+    font-size: 13px; font-weight: 600; color: var(--m-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 3px;
+}
+.mp-card__meta {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.mp-card__plays {
+    font-size: 11px; color: var(--m-muted);
+    display: flex; align-items: center; gap: 4px;
+}
+.mp-card__plays i { font-size: 10px; }
+.mp-card__like {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(255,255,255,.05); border: none;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--m-muted); font-size: 12px; cursor: pointer;
+    transition: all .2s;
+}
+.mp-card__like:hover { background: rgba(232,39,75,.15); color: var(--m-red); }
+/* ── ERREUR ── */
+.mp-error {
+    grid-column: 1 / -1;
+    text-align: center; padding: 48px 20px;
+    color: var(--m-muted2);
+}
+.mp-error i {
+    font-size: 40px; color: var(--m-muted);
+    margin-bottom: 14px; display: block;
+}
+.mp-error p { font-size: 14px; }
+/* ════════════════════════════
+   MODAL PLAYLIST
+════════════════════════════ */
+.mp-modal {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(10px);
+    z-index: 700;
+    align-items: center; justify-content: center;
+}
+.mp-modal.is-open { display: flex; }
+.mp-modal__card {
+    background: var(--m-bg3);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 18px; padding: 32px;
+    width: 100%; max-width: 400px;
+    box-shadow: 0 32px 80px rgba(0,0,0,.7);
+    animation: modalIn .28s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(.88) translateY(16px); }
+    to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+.mp-modal__head {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 24px;
+}
+.mp-modal__head h3 {
+    font-family: var(--ff-head);
+    font-size: 22px; letter-spacing: 1px; color: #fff;
+}
+.mp-modal__x {
+    width: 30px; height: 30px; border-radius: 7px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid var(--m-border);
+    color: var(--m-muted2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; transition: all .2s;
+}
+.mp-modal__x:hover { background: var(--m-red); border-color: var(--m-red); color: #fff; }
+.mp-modal__input {
+    width: 100%;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: var(--ff-body); font-size: 14px;
+    color: #fff; outline: none; caret-color: var(--m-red);
+    margin-bottom: 20px;
+    transition: border-color .2s, box-shadow .2s;
+}
+.mp-modal__input::placeholder { color: var(--m-muted); }
+.mp-modal__input:focus {
+    border-color: var(--m-red);
+    box-shadow: 0 0 0 3px rgba(232,39,75,.12);
+}
+.mp-modal__actions { display: flex; gap: 10px; }
+.mp-modal-btn {
+    flex: 1; padding: 11px; border-radius: 10px;
+    font-family: var(--ff-body); font-size: 13.5px;
+    font-weight: 700; border: none; cursor: pointer; transition: all .2s;
+}
+.mp-modal-btn-primary {
+    background: var(--m-red); color: #fff;
+    box-shadow: 0 4px 14px rgba(232,39,75,.3);
+}
+.mp-modal-btn-primary:hover { background: #c71f40; transform: translateY(-1px); }
+.mp-modal-btn-secondary {
+    background: rgba(255,255,255,.06); color: var(--m-muted2);
+    border: 1px solid var(--m-border);
+}
+.mp-modal-btn-secondary:hover { background: rgba(255,255,255,.1); color: #fff; }
+/* ════════════════════════════
+   MES PLAYLISTS (sidebar)
+════════════════════════════ */
+.liste-mes-playlists {
+    list-style: none;
+    padding: 4px 10px 14px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.pl-item { width: 100%; }
+.pl-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    text-decoration: none;
+    color: var(--m-muted2);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: background .18s, color .18s, border-color .18s;
     white-space: nowrap;
 }
-
-.tr-dl:hover {
-    background: var(--tr-red); border-color: var(--tr-red); color: #fff;
+.pl-link:hover {
+    background: rgba(255,255,255,.06);
+    color: var(--m-text);
+    border-color: var(--m-border);
 }
-
-.tr-dl i { font-size: 11px; }
-
-/* ══ LECTEUR STICKY ══ */
-.tr-player {
-    position: fixed;
-    bottom: 0; left: 0; right: 0; z-index: 200;
-    background: rgba(14,14,20,.96);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-top: 1px solid var(--tr-border);
-    padding: 12px 28px;
-    display: flex; align-items: center; gap: 16px;
-    transform: translateY(100%);
-    transition: transform .35s cubic-bezier(.4,0,.2,1);
-    box-shadow: 0 -8px 32px rgba(0,0,0,.45);
-}
-
-.tr-player.is-visible { transform: translateY(0); }
-
-.tr-player__dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--tr-red); flex-shrink: 0;
-    animation: trBlink 1.1s ease-in-out infinite;
-}
-
-@keyframes trBlink { 0%,100%{opacity:1} 50%{opacity:.2} }
-
-.tr-player__cover {
-    width: 40px; height: 40px;
-    border-radius: 8px; object-fit: cover;
-    border: 1px solid var(--tr-border);
-    flex-shrink: 0; display: none;
-}
-
-.tr-player__cover.is-visible { display: block; }
-
-.tr-player__info {
-    display: flex; flex-direction: column;
-    min-width: 0; max-width: 180px; flex-shrink: 0;
-}
-
-.tr-player__track {
-    font-size: 13px; font-weight: 700;
-    color: var(--tr-text);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-.tr-player__artist {
-    font-size: 11.5px; color: var(--tr-muted2);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-#main-audio {
-    flex: 1; min-width: 0;
-    height: 36px; accent-color: var(--tr-red);
-}
-
-.tr-player__close {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: rgba(255,255,255,.05);
-    border: 1px solid var(--tr-border);
-    color: var(--tr-muted2); font-size: 13px;
+.pl-ico {
+    width: 26px; height: 26px;
+    flex-shrink: 0;
+    border-radius: 7px;
+    background: linear-gradient(135deg, var(--m-purple), var(--m-red));
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; flex-shrink: 0; transition: all .2s;
+    color: #fff; font-size: 11px;
 }
-
-.tr-player__close:hover {
-    background: var(--tr-red); border-color: var(--tr-red); color: #fff;
+.pl-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-
-/* ══ RESPONSIVE ══ */
-@media (max-width: 768px) {
-    .tr-hero    { padding: 28px 20px; }
-    .tr-content { padding: 18px; }
+.pl-count {
+    flex-shrink: 0;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--m-muted);
+    background: rgba(255,255,255,.06);
+    border-radius: 20px;
+    padding: 2px 8px;
+    min-width: 20px;
+    text-align: center;
 }
-
+.pl-link:hover .pl-count { color: var(--m-text); }
+.pl-empty {
+    padding: 10px 12px;
+    font-size: 12.5px;
+    color: var(--m-muted);
+    font-style: italic;
+}
+.mp-sidebar.collapsed .liste-mes-playlists { display: none; }
+/* ════════════════════════════
+   MODAL — MUSIQUES D'UNE PLAYLIST
+════════════════════════════ */
+.mp-modal__card--wide { max-width: 480px; }
+.pl-track-list {
+    list-style: none;
+    margin: 0 0 20px;
+    padding: 0;
+    max-height: 360px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.pl-track {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.04);
+    transition: background .15s;
+}
+.pl-track:hover { background: rgba(255,255,255,.08); }
+.pl-track a {
+    display: flex; align-items: center; gap: 10px;
+    flex: 1; min-width: 0;
+    text-decoration: none; color: inherit;
+}
+.pl-track__cover {
+    width: 42px; height: 42px; border-radius: 8px;
+    background-size: cover; background-position: center;
+    flex-shrink: 0;
+}
+.pl-track__info { min-width: 0; }
+.pl-track__title {
+    font-size: 13.5px; font-weight: 700; color: #fff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pl-track__artist {
+    font-size: 11.5px; color: var(--m-muted2);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pl-track__remove {
+    background: none; border: none; color: var(--m-muted);
+    cursor: pointer; font-size: 13px; padding: 6px; flex-shrink: 0;
+}
+.pl-track__remove:hover { color: var(--m-red); }
+.pl-track-empty { padding: 30px 10px; text-align: center; color: var(--m-muted); font-size: 13.5px; }
+/* ════════════════════════════
+   RESPONSIVE
+════════════════════════════ */
+@media (max-width: 900px) {
+    .mp-hero     { padding: 24px 20px; }
+    .mp-genres   { padding: 0 20px; }
+    .mp-content  { padding: 20px; gap: 32px; }
+    .mp-grid     { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+}
 @media (max-width: 600px) {
-    .tr-hero    { padding: 18px 16px; }
-    .tr-content { padding: 12px; }
-    .tr-hero__stats { gap: 14px; }
-    .tr-player  { padding: 10px 14px; gap: 10px; flex-wrap: wrap; }
-    #main-audio { flex-basis: 100%; }
-    .tr-player__info { max-width: 140px; }
+    .mp-hero     { padding: 18px 16px; }
+    .mp-search   { flex-direction: column; }
+    .mp-search-btn { width: 100%; text-align: center; justify-content: center; }
+    .mp-content  { padding: 14px; gap: 24px; }
+    .mp-grid     { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .mp-section-title { font-size: 22px; }
 }
+@media (max-width: 380px) {
+    .mp-grid { grid-template-columns: 1fr; }
+}
+    .np-welcome {
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+        max-width:480px;
+        margin:0 auto;
+        padding-top:16px;
+    }
+    .np-welcome-avatar {
+        width:32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink:0;
+        background: #222;
+    }
+    .np-welcome-text {
+        color: #999;
+        font-size: 13px;
+        margin:0;
+    }
+    .mp-mobile-sidebar-btn { display: none; }
+    .mp-sidebar-backdrop { display: none; }
+    @media (max-width: 768px) { #sbToggle{display:none;}
+        .mp-sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            height: calc(100vh - 60px);
+            width: 230px;
+            transform: translateX(-100%);
+            transition: transform .3s cubic-bezier(.4,0,.2,1);
+            z-index: 200;
+        }
+        .mp-sidebar.mobile-open {
+            transform: translateX(0);
+        }
+        .mp-sidebar.collapsed {
+            width: 230px; /* neutralise le mode "collapsed" desktop sur mobile */
+        }
+        .mp-mobile-sidebar-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: fixed;
+            top: 70px;
+            left: 12px;
+            z-index: 120;
+            background: var(--m-red);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .mp-sidebar-backdrop.active {
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 150;
+        }
+    }
 </style>
-
 <!-- ══ PAGE ══ -->
-<div class="tr-page">
 
-    <!-- ══ HERO ══ -->
-    <div class="tr-hero">
-        <div class="tr-hero__inner">
-            <div class="tr-hero__icon">
-                <i class="fas fa-fire"></i>
+<div class="mp-page">
+    <!-- ══ TOGGLE SIDEBAR MOBILE ══ -->
+    <button type="button" id="mobileSidebarToggle" class="mp-mobile-sidebar-btn">
+        <i class="fas fa-bars"></i> <!--Menu navigation-->
+    </button>
+    <div class="mp-sidebar-backdrop" id="mpSidebarBackdrop"></div>
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="mp-sidebar" id="mpSidebar">
+           <div class="np-welcome">
+                    <img src="{{request.user.profil.get_avatar_url}}" alt="{{request.user.username}}" class="np-welcome-avatar">
+                    {% if request.user.is_authenticated %}
+                        <p class="np-welcome-text">Bienvenue, {{ request.user.username }}</p>
+                    {% endif %}
+                </div>
+        <div class="sb-head">
+            <span class="sb-head-title">MUSIQUE</span>
+            <button type="button" class="sb-toggle" id="sbToggle" aria-label="Réduire">
+                <i class="fas fa-chevron-left" id="sbToggleIcon"></i>
+            </button>
+        </div>
+        {% if 'user' in session %}
+        <div class="sb-user">
+            <div class="sb-user-inner">
+                <div class="sb-av">{{ session.user.0|upper }}</div>
+                <span class="sb-uname">{{ session.user }}</span>
             </div>
-            <div class="tr-hero__eyebrow">
-                <i class="fas fa-chart-line"></i> ActuWebMedia Musique
-            </div>
-            <h1 class="tr-hero__title">TRENDING <em>SONGS</em></h1>
-            <p class="tr-hero__sub">
+        </div>
+        {% endif %}
+        <div class="sb-section">Navigation</div>
+        <ul class="sb-nav">
+            <li>
+                <a href="{% url 'ActuWebApp:aff_mus' %}" class="active">
+                    <i class="fas fa-house sb-ico"></i>
+                    <span class="sb-lbl">Accueil</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'ActuWebApp:tendance' %}">
+                    <i class="fas fa-fire sb-ico" style="color:var(--m-red)"></i>
+                    <span class="sb-lbl">Tendances</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'ActuWebApp:nouveautes' %}">
+                    <i class="fas fa-star sb-ico" style="color:var(--m-gold)"></i>
+                    <span class="sb-lbl">Nouveautés</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'ActuWebApp:actumusiques' %}">
+                    <i class="fas fa-newspaper sb-ico"></i>
+                    <span class="sb-lbl">Actualités</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'ActuWebApp:videosyt' %}">
+                    <i class="fab fa-youtube sb-ico" style="color:#FF0000"></i>
+                    <span class="sb-lbl">Vidéos</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sb-section">Bibliothèque</div>
+        <ul class="sb-nav">
+            <li>
+                <a href="{% url 'ActuWebApp:modal_creer_play' %}"
+                hx-get="{% url 'ActuWebApp:modal_creer_play' %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML">
+                <i	class="fas fa-plus"></i>Créer une playlist
+                </a>
+            </li>
+        </ul>
+        <ul id="liste-mes-playlists" class="liste-mes-playlists" hx-get="{% url 'ActuWebApp:fragment_mes_playlists' %}" hx-trigger="load" hx-swap="innerHTML">
+<!--            remplir automatiquement-->
+        </ul>
+    </aside>
+    <!-- ══ MAIN ══ -->
+    <div class="mp-main">
+        <!-- HERO -->
+        <div class="mp-hero">
+            <div class="mp-hero__inner">
+                <div class="mp-hero__eyebrow">
+                    <i class="fas fa-music"></i> ActuWebMedia Musiques
+                </div>
+                <h3 class="mp-hero__title"><em>Tendances</em></h3>
+                <p class="mp-hero__sub">
                 Les morceaux les plus écoutés du moment —
                 cliquez sur une ligne pour écouter.
-            </p>
-            <div class="tr-hero__stats">
-                {% if trending_songs %}
-                <div class="tr-stat">
-                    <i class="fas fa-music"></i>
-                    <strong>{{ trending_songs|length }}</strong>
-                    <span>titre{{ 's' if trending_songs|length > 1 }}</span>
-                </div>
-                {% endif %}
-                <div class="tr-stat">
-                    <i class="fas fa-fire"></i>
-                    <span><strong>Top</strong> tendances</span>
-                </div>
-                <div class="tr-stat">
-                    <i class="fas fa-download"></i>
-                    <span>Téléchargement <strong>gratuit</strong></span>
-                </div>
+                </p>
+<!--                <form class="mp-search" action="" method="GET">-->
+<!--                    <div class="mp-search-wrap">-->
+<!--                        <i class="fas fa-magnifying-glass"></i>-->
+<!--                        <input type="text" name="q" hx-get="{% url 'ActuWebApp:rechmus' %}" hx-trigger="keyup changed delay:400ms,search"-->
+<!--                               hx-target="#resultats-recherche" hx-swap="innerHTML"-->
+<!--                               placeholder="Rechercher un artiste, un titre…"-->
+<!--                               autocomplete="off">-->
+<!--                    </div>-->
+<!--                    <button type="submit" class="mp-search-btn">-->
+<!--                        <i class="fas fa-search"></i> Rechercher-->
+<!--                    </button>-->
+<!--                </form>-->
             </div>
         </div>
-    </div>
-
-    <!-- ══ CONTENU ══ -->
-    <div class="tr-content">
-
-        <div class="tr-section-head">
-            <div class="tr-section-label">
-                <h2>🔥 Classement Trending</h2>
+        <div id="resultats-recherche">
+<!--            les resultats htmx s'affichent-->
+        </div>
+        <!-- GENRE PILLS -->
+        <div class="mp-genres">
+            <a href="{% url 'ActuWebApp:aff_mus' %}" class="mp-genre-pill active">
+                <i class="fas fa-border-all"></i> Tout
+            </a>
+            <a href="#section-compas" class="mp-genre-pill">
+                <i class="fas fa-guitar"></i> Kompa
+            </a>
+            <a href="#section-afro" class="mp-genre-pill">
+                <i class="fas fa-drum"></i> Afrobeat
+            </a>
+            <a href="#section-evang" class="mp-genre-pill">
+                <i class="fas fa-music"></i> Évangélique
+            </a>
+            <a href="{% url 'ActuWebApp:tendance' %}" class="mp-genre-pill">
+                <i class="fas fa-fire" style="color:var(--m-red)"></i> Tendances
+            </a>
+            <a href="{% url 'ActuWebApp:nouveautes' %}" class="mp-genre-pill">
+                <i class="fas fa-star" style="color:var(--m-gold)"></i> Nouveautés
+            </a>
+                <a href="{% url 'ActuWebApp:modal_creer_play' %}"
+                hx-get="{% url 'ActuWebApp:modal_creer_play' %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML" class="mp-genre-pill">
+                <i	class="fas fa-plus" style="color:var(--m-gold)"></i>Créer une playlist
+                </a>
+        </div>
+        <!-- CONTENU -->
+        <div class="mp-content" id="mp-content">
+            <!-- ══ COMPAS ══ -->
+            <section id="section-compas">
+                <div class="mp-grid">
+        {% for musique in musiques %}
+        <div class="mp-card">
+            <a href="{% url 'ActuWebApp:play_mus' musique.slug %}" style="display:contents">
+                <div class="mp-card__thumb">
+                    <img src="{{ musique.image_url }}" alt="{{ musique.titre }}" loading="lazy">
+                    <div class="mp-card__overlay">
+                        <button class="mp-play-btn" aria-label="Écouter">
+                            <i class="fas fa-play"></i>
+                        </button>
+                  </div>
+                </div>
+            </a>
+            <div class="mp-card__info">
+                <div class="mp-card__artist">{{ musique.artiste }}</div>
             </div>
-            {% if trending_songs %}
-            <span class="tr-count">{{ trending_songs|length }} titre{{ 's' if trending_songs|length > 1 }}</span>
-            {% endif %}
         </div>
-
-        <div class="tr-table-wrap">
-            <table class="tr-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Cover</th>
-                        <th>Titre</th>
-                        <th>Artiste</th>
-                        <th>Durée</th>
-                        <th>Télécharger</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for song in trending_songs %}
-                    <tr class="tr-row"
-                        data-audio="{{ song.Ecouter }}"
-                        data-title="{{ song.Titre }}"
-                        data-artist="{{ song.Artiste }}"
-                        data-cover="{{ song.image }}"
-                        data-rank="{{ song.id }}">
-
-                        <!-- Index -->
-                        <td class="tr-idx">
-                            <span class="tr-idx-num">{{ song.id }}</span>
-                            <div class="tr-eq">
-                                <span></span><span></span><span></span>
-                            </div>
-                        </td>
-
-                        <!-- Cover -->
-                        <td>
-                            <img
-                                class="tr-cover"
-                                src="{{ song.image }}"
-                                alt="{{ song.Titre }}"
-                                loading="lazy"
-                                onerror="this.src='https://placehold.co/46x46/18181F/64748B?text=♫'"
-                            >
-                        </td>
-
-                        <!-- Titre -->
-                        <td>
-                            <div class="tr-title">{{ song.Titre }}</div>
-                        </td>
-
-                        <!-- Artiste -->
-                        <td>
-                            <span class="tr-artist">{{ song.Artiste }}</span>
-                        </td>
-
-                        <!-- Durée -->
-                        <td>
-                            <span class="tr-dur">
-                                <i class="fas fa-clock" style="font-size:10px; margin-right:4px; color:var(--tr-muted)"></i>
-                                {{ song.duree }}
-                            </span>
-                        </td>
-
-                        <!-- Télécharger -->
-                        <td>
-                            <a class="tr-dl"
-                               href="{{ song.Telecharger }}"
-                               download
-                               onclick="event.stopPropagation()">
-                                <i class="fas fa-download"></i>
-                                Télécharger
-                            </a>
-                        </td>
-
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-    </div><!-- /tr-content -->
-</div><!-- /tr-page -->
-
-<!-- ══ LECTEUR STICKY ══ -->
-<div class="tr-player" id="trPlayer">
-    <div class="tr-player__dot"></div>
-    <img class="tr-player__cover" id="trCover" src="" alt="">
-    <div class="tr-player__info">
-        <span class="tr-player__track"  id="trTrack">—</span>
-        <span class="tr-player__artist" id="trArtist">—</span>
+        {% empty %}
+        <p>Aucune tendance musicale.</p>
+        {% endfor %}
     </div>
-    <audio id="main-audio" controls></audio>
-    <button class="tr-player__close" id="trClose" aria-label="Fermer">
-        <i class="fas fa-xmark"></i>
-    </button>
+            </section>
+
+
+        </div><!-- /mp-content -->
+    </div><!-- /mp-main -->
 </div>
-
+<div id="modal-container"></div>
 {% endblock %}
+
+
+<!-- Conteneur des modals HTMX (création de playlist, contenu d'une playlist, etc.) -->
+
 
 {% block scripts %}
 <script>
 (function () {
-
-    const rows      = document.querySelectorAll('.tr-row');
-    const player    = document.getElementById('main-audio');
-    const playerBar = document.getElementById('trPlayer');
-    const trackEl   = document.getElementById('trTrack');
-    const artistEl  = document.getElementById('trArtist');
-    const coverEl   = document.getElementById('trCover');
-    const closeBtn  = document.getElementById('trClose');
-
-    let activeRow = null;
-
-    /* ── Clic sur une ligne ── */
-    rows.forEach(row => {
-        row.addEventListener('click', e => {
-            /* Ne pas déclencher si clic sur le bouton télécharger */
-            if (e.target.closest('.tr-dl')) return;
-
-            const url    = row.dataset.audio;
-            const title  = row.dataset.title;
-            const artist = row.dataset.artist;
-            const cover  = row.dataset.cover || '';
-
-            /* Toggle pause si même ligne */
-            if (activeRow === row && !player.paused) {
-                player.pause();
-                row.classList.remove('is-playing');
-                activeRow = null;
-                return;
+    function getCookie(name) {
+        const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return match ? decodeURIComponent(match[2]) : null;
+    }
+    document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] = getCookie('csrftoken');
+    });
+    /* ── Sidebar collapse (délégation : résiste aux ID dupliqués et aux re-swaps HTMX) ── */
+    document.addEventListener('click', (e) => {
+        const toggleBtn = e.target.closest('#sbToggle');
+        if (!toggleBtn) return;
+        const sidebar = toggleBtn.closest('.mp-sidebar') || document.getElementById('mpSidebar');
+        if (!sidebar) return;
+        const collapsed = sidebar.classList.toggle('collapsed');
+        const icon = toggleBtn.querySelector('#sbToggleIcon') || toggleBtn.querySelector('i');
+        if (icon) icon.className = collapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+    });
+    /* ── Sidebar mobile : ouverture/fermeture en tiroir ── */
+    const mobileBtn = document.getElementById('mobileSidebarToggle');
+    const backdrop  = document.getElementById('mpSidebarBackdrop');
+    const sidebarEl = document.getElementById('mpSidebar');
+    mobileBtn?.addEventListener('click', () => {
+        sidebarEl.classList.add('mobile-open');
+        backdrop.classList.add('active');
+    });
+    backdrop?.addEventListener('click', () => {
+        sidebarEl.classList.remove('mobile-open');
+        backdrop.classList.remove('active');
+    });
+    /* ── Genre pills scroll-spy ── */
+    const pills    = document.querySelectorAll('.mp-genre-pill[href^="#"]');
+    const sections = [];
+    pills.forEach(p => {
+        const id = p.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) sections.push({ pill: p, el });
+    });
+    if (sections.length) {
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (!e.isIntersecting) return;
+                pills.forEach(p => p.classList.remove('active'));
+                const f = sections.find(s => s.el === e.target);
+                if (f) f.pill.classList.add('active');
+            });
+        }, { threshold: .3 });
+        sections.forEach(s => io.observe(s.el));
+    }
+    /* ── Smooth scroll pills ── */
+    pills.forEach(p => {
+        p.addEventListener('click', e => {
+            const href = p.getAttribute('href');
+            if (href.startsWith('#')) {
+                e.preventDefault();
+                document.querySelector(href)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
-
-            /* Désactiver ancienne ligne */
-            if (activeRow) activeRow.classList.remove('is-playing');
-
-            /* Activer nouvelle ligne */
-            activeRow = row;
-            row.classList.add('is-playing');
-
-            /* Lecteur */
-            player.src = url;
-            player.play().catch(() => {});
-
-            /* Info */
-            trackEl.textContent  = title;
-            artistEl.textContent = artist;
-
-            if (cover) {
-                coverEl.src = cover;
-                coverEl.classList.add('is-visible');
-            }
-
-            playerBar.classList.add('is-visible');
         });
     });
-
-    /* ── Fin de piste → reset ── */
-    player.addEventListener('ended', () => {
-        if (activeRow) activeRow.classList.remove('is-playing');
-        activeRow = null;
+    /* ── Like buttons ── */
+    document.querySelectorAll('.mp-card__like').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.preventDefault();
+            const icon  = btn.querySelector('i');
+            const liked = icon.classList.toggle('fas');
+            icon.classList.toggle('far', !liked);
+            icon.style.color     = liked ? 'var(--m-red)' : '';
+            btn.style.background = liked ? 'rgba(232,39,75,.15)' : '';
+        });
     });
-
-    /* ── Fermer lecteur ── */
-    closeBtn.addEventListener('click', () => {
-        player.pause(); player.src = '';
-        playerBar.classList.remove('is-visible');
-        coverEl.classList.remove('is-visible');
-        if (activeRow) activeRow.classList.remove('is-playing');
-        activeRow = null;
-        trackEl.textContent  = '—';
-        artistEl.textContent = '—';
-    });
-
+    /* ── Gestion générique des modals injectés par HTMX (créer playlist / voir playlist) ── */
+    const modalContainer = document.getElementById('modal-container');
+    // Fonction globale : n'importe quel bouton/template peut appeler closePlaylistModal()
+    // via onclick="closePlaylistModal()" — même les modals que je n'ai pas écrits moi-même.
+    window.closePlaylistModal = function () {
+        const mc = document.getElementById('modal-container');
+        if (mc) mc.innerHTML = '';
+    };
+    // Tout ce qui suit dépend de #modal-container : on ne l'exécute que s'il existe
+    // sur la page (évite une erreur si ce script est un jour partagé sur une page qui
+    // n'a pas ce conteneur).
+    if (modalContainer) {
+        function openInjectedModal() {
+            const modal = modalContainer.querySelector('.mp-modal');
+            if (modal) modal.classList.add('is-open');
+        }
+        // Ouvre le modal dès qu'il est injecté dans #modal-container
+        document.body.addEventListener('htmx:afterSwap', (e) => {
+            if (e.detail.target === modalContainer) openInjectedModal();
+        });
+        // Ferme le modal : clic sur le fond OU sur un élément .mp-modal__x / [data-close-modal],
+        // où qu'il se trouve dans la page (délégation sur document, pas seulement modalContainer,
+        // au cas où le fragment injecté contiendrait sa propre structure imbriquée).
+        document.addEventListener('click', (e) => {
+            if (!modalContainer.contains(e.target)) return;
+            const isBackdrop = e.target.classList.contains('mp-modal');
+            const isCloseBtn = e.target.closest('.mp-modal__x, [data-close-modal]');
+            if (isBackdrop || isCloseBtn) {
+                e.preventDefault();
+                modalContainer.innerHTML = '';
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') modalContainer.innerHTML = '';
+        });
+    }
     /* ── Lazy images fade-in ── */
     if ('IntersectionObserver' in window) {
         document.querySelectorAll('img[loading="lazy"]').forEach(img => {
@@ -615,11 +945,11 @@
                 img.addEventListener('load', () => img.style.opacity = '1');
                 if (img.complete) img.style.opacity = '1';
                 io.disconnect();
-            }, { rootMargin: '60px' });
+            }, { rootMargin: '80px' });
             io.observe(img);
         });
     }
-
 })();
 </script>
+
 {% endblock %}
