@@ -39,6 +39,11 @@ urlpatterns = [
     path('playlists/<int:playlist_id>/supprimerplaylist/', views.supprimerplaylist, name='supp_playlist'),
     path('playlists/<int:playlist_id>/detailplaylist/', views.detail_playlist, name='detail_playlist'),
     path('gemini-ai', views.assistanceai, name='ai_assistant'),
-    path('recherche-musique', views.recherchermusiques, name='rechmus')
+    path('recherche-musique', views.recherchermusiques, name='rechmus'),
+    path('musiques/genre/<str:genre>/', views.musiques_par_genre, name='musiques_genre'),
+    path('musiques/tendances/', views.tendance, name='tendance'),
+    path('musiques/nouveautes/', views.nouveauxmusiques, name='nouveautes'),
+    path('actualites-musiques/', views.actualitesmusiques, name='actumusiques'),
+    path('videos-youtube/', views.playvideosyoutube, name='videosyt'),
 
 ]

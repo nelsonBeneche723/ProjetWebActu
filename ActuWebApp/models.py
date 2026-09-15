@@ -28,7 +28,7 @@ class Article(models.Model):
     summary = models.TextField(max_length=200, help_text='Un resume court pour les cartes actualites', verbose_name='Resume')
     content = models.TextField(verbose_name='Contenu de l\'article')
     image = models.URLField(max_length=1000, blank=True, null=True,verbose_name='Adresse URL de l\'image')
-    category = models.CharField(max_length=20, choices=[('actualites','actualites'),('sports', 'sports'),('sante', 'sante'),('sciences','sciences'),('politiques','politiques')],default='actualites',verbose_name='Categories')
+    category = models.CharField(max_length=20, choices=[('actualites','actualites'),('sports', 'sports'),('sante', 'sante'),('sciences','sciences'),('politiques','politiques'),('musiques','musiques')],default='actualites',verbose_name='Categories')
     sources = models.CharField(max_length=255, blank=True, null=True, help_text='Exemple: lemonde, AFP, Reuters(separes des virgules)')
     status = models.CharField(max_length=10, choices=[('brouillon', 'brouillon'),('publie', 'publie')])
     created_at =  models.DateTimeField(auto_now_add=True, verbose_name='date de creation')
@@ -71,6 +71,7 @@ class Article(models.Model):
         super().save(*args, **kwargs)
 
 
+
 class Musiques(models.Model):
     genre_m = [('kompa','Kompa'),('rap','Rap'),('afrobeat','Afrobeat'),('rnb','RNB'),('gospel','Gospel'),('racine','Musique Racine'),('autre','Autre')]
     titre = models.CharField(max_length=200)
@@ -94,6 +95,15 @@ class Musiques(models.Model):
         if not self.slug:
             self.slug = slugify(self.titre)
         super().save(*args, **kwargs)
+
+    @property
+    def nb_ecoute_affiche(self):
+        valeur = self.nb_ecoutes
+        if valeur >=1_000_000:
+            return f"{valeur/1_000_000:.1f}M".replace('.0M', 'M')
+        elif valeur >=1_000:
+            return f"{valeur/1_000:.1f}k".replace('.0k', 'k')
+        return str(valeur)
 
 class Lyric(models.Model):
     musique = models.OneToOneField(Musiques, on_delete=models.CASCADE, related_name='lyrics')
@@ -143,10 +153,12 @@ class Profil(models.Model):
 
 
 class ChaineTV(models.Model):
+    categorie_choices=[('info','Info'),('sport','Sport'),('musique','Musique'),('culture','Culture'),('generaliste','Generaliste'),('divertissement','Divertissement')]
     nom = models.CharField(max_length=200, null=True ,verbose_name='Nom')
     slug = models.SlugField(max_length=220,null=True, blank=True, unique=True)
     url = models.URLField(max_length=300,help_text='Lien vers la chaine..')
     logo = models.URLField(max_length=300,help_text='Logo de la chaine..')
+    categorie = models.CharField(max_length=300, choices=categorie_choices, help_text='Categorie', default='info', null=True, blank=True,  verbose_name='categorie')
     class Meta:
         verbose_name = 'ChaineTV'
         verbose_name_plural = 'ChainesTV'

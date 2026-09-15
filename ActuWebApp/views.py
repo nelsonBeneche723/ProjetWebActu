@@ -12,7 +12,7 @@ from babel.dates import format_datetime
 from django.template.loader import render_to_string
 from .models import Station, Article, Musiques, Profil, Commentaire, ChaineTV, Playlist
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, F, ExpressionWrapper, FloatField
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
@@ -27,6 +27,9 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth import authenticate, login, logout
 from django.utils.http import url_has_allowed_host_and_scheme
 from pyradios import RadioBrowser
+from django.utils import timezone
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 # Create your views here.
 # Avatar pour les profils utilisateurs
 avatar_definis = [('avatar-1', 'https://i.pravatar.cc/150?img=1'),
@@ -1051,7 +1054,24 @@ def index(request):
     articles = Article.objects.filter(category='actualites')[:15] # a modifier
     stations = aff_stationradio()
     connection = True
-    return render(request, 'index.html', context={'stations':stations, 'articles':articles, 'connection':connection
+    nb_radios = Station.objects.count()
+    nb_tv = ChaineTV.objects.count()
+    nb_users_profil = Profil.objects.count()
+    nb_musiques = Musiques.objects.count()
+    nb_art_actualites = Article.objects.filter(status='publie', category='actualites').count()
+    nb_art_sports = Article.objects.filter(status='publie', category='sports').count()
+    nb_art_sante = Article.objects.filter(status='publie', category='sante').count()
+    nb_art_sciences = Article.objects.filter(status='publie', category='sciences').count()
+    nb_art_musiques = Article.objects.filter(status='publie', category='musiques').count()
+    nb_art_politiques = Article.objects.filter(status='publie', category='politiques').count()
+
+    return render(request, 'index.html', context={'stations':stations, 'articles':articles,
+                                                  'connection':connection, 'nb_radios':nb_radios, 'nb_tv':nb_tv,
+                                                  'nb_users_profil':nb_users_profil,'nb_musiques':nb_musiques,
+                                                  'nb_art_actualites':nb_art_actualites, 'nb_art_sports':nb_art_sports,
+                                                  'nb_art_sante':nb_art_sante,'nb_art_sciences':nb_art_sciences,
+                                                  'nb_art_musiques':nb_art_musiques, 'nb_art_politiques':nb_art_politiques
+
     })
 
 def article_detail(request,year, month, day, slug):
@@ -1273,6 +1293,9 @@ def affichermusiques(request):
 def lecturemusiques(request, slug):
     # on recupere la musique ou renvoi une erreur 404 si le slug n'existait pas
     musique = get_object_or_404(Musiques, slug=slug)
+    Musiques.objects.filter(slug=slug).update(nb_ecoutes=F('nb_ecoutes') + 1)  # calcul de nombre ecoute
+    # Refresh la base
+    musique.refresh_from_db()
     # None s'il ny a pas de lyrics
     lyrics = getattr(musique, 'lyrics', 'None')
     # Recuperer d'autres musiques du meme genre
@@ -1493,3 +1516,81 @@ def recherchermusiques(request):
         resultats = Musiques.objects.none()
 
     return render(request, 'partials/resultat-recherche.html', {'resultats':resultats, 'query':query})
+
+
+def musiques_par_genre(request, genre):
+    musiques = Musiques.objects.filter(genre=genre)
+    contexte = {'genre': genre, 'musiques': musiques}
+    if request.headers.get('HX-Request') == 'true':
+        return render(request, 'partials/musique_genre.html', contexte)  # fragment seul
+    return render(request, 'partials/musique_genre_page.html', contexte)  # page complète
+
+def tendance(request):
+    maintenant = timezone.now()
+    musiques = Musiques.objects.annotate(
+        age_jours=ExpressionWrapper(
+            (maintenant - F('date_ajout')) / timedelta(days=1), output_field=FloatField()
+        )
+    ).annotate(
+        score=ExpressionWrapper(
+            F('nb_ecoutes') / F('age_jours') + 2, output_field=FloatField())
+    ).order_by('-score')[:20] #+2evite la division par 0, pour les nouveaux morceaux
+    return render(request, 'trending-song.html', {'musiques':musiques})
+
+def nouveauxmusiques(request):
+    nouveautes = Musiques.objects.order_by('-date_ajout')[:20] # grouper par date(derniere enregistrement)
+    return render(request, 'new-song.html', context={'nouveautes':nouveautes})
+
+def actualitesmusiques(request):
+    articles = Article.objects.filter(category='musiques')[:15]
+    return render(request, 'actualites_musiques.html', {'articles':articles})
+
+def format_vues(vues_str):
+    try:
+        vues = int(vues_str)
+    except (ValueError, TypeError):
+        return "0"
+    if vues >= 1_000_000:
+        formatted = vues / 1_000_000
+        return f"{formatted:.1f}".rstrip('0').rstrip('.') + "M"
+    elif vues >= 1_000:
+        formatted = vues / 1_000_000
+        return f"{formatted:.1f}".rstrip('0').rstrip('.') + "k"
+    return str(vues)
+
+def playvideosyoutube(request):
+    apikey = os.getenv('api_youtubedata')
+    videosyoutube = []
+    # gestion d'erreur
+    try:
+        youtube = build('youtube', 'v3', developerKey=apikey)
+        yt_request = youtube.videos().list(
+            part='snippet,statistics',
+            chart='mostPopular',
+            regionCode='US',
+            videoCategoryId='10',  # Musique
+            maxResults=20
+        )
+        response = yt_request.execute()
+        # parcourir toutes les videos
+        for video in response.get('items', []):
+            vues_str = video['statistics'].get('viewCount', '0')
+            try:
+                vues = int(vues_str)
+            except (ValueError, TypeError):
+                vues = 0
+
+            videosyoutube.append({
+                "id": video['id'],
+                "titre": video['snippet']['title'],
+                "artiste": video['snippet']['channelTitle'],
+                "vues": format_vues(vues_str),
+            })
+
+    except HttpError as e:
+        print(f"Erreur API YouTube : {e}")
+    except Exception as e:
+        print(f"Erreur inattendue : {e}")
+
+    context = {"videosyoutube": videosyoutube}
+    return render(request, 'videosyoutube.html', context)
