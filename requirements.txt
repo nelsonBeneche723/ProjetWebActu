@@ -10,6 +10,7 @@ pytz>=2024.1
 pyradios>=1.0.0
 python-dotenv
 django-jazzmin
+whitenoise
 
 # --- Indispensables pour le deploiement sur Render (pas dans views.py mais requis) ---
 gunicorn>=21.2.0
