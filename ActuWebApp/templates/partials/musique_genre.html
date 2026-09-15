@@ -1,0 +1,32 @@
+<div class="mp-content" id="mp-content">
+    <div class="mp-section-head">
+<!--        <a href="{% url 'ActuWebApp:aff_mus' %}"-->
+<!--           hx-get="{% url 'ActuWebApp:aff_mus' %}"-->
+<!--           hx-target="#mp-content" hx-swap="outerHTML" hx-push-url="true"-->
+<!--           class="mp-see-all">-->
+<!--            <i class="fas fa-arrow-left"></i> Retour-->
+<!--        </a>-->
+        <h3 class="mp-section-title">{{ genre|upper }}</h3>
+    </div>
+    <div class="mp-grid">
+        {% for musique in musiques %}
+        <div class="mp-card">
+            <a href="{% url 'ActuWebApp:play_mus' slug=musique.slug %}" style="display:contents">
+                <div class="mp-card__thumb">
+                    <img src="{{ musique.image_url }}" alt="{{ musique.titre }}" loading="lazy">
+                    <div class="mp-card__overlay">
+                        <button class="mp-play-btn" aria-label="Écouter">
+                            <i class="fas fa-play"></i>
+                        </button>
+                  </div>
+                </div>
+            </a>
+            <div class="mp-card__info">
+                <div class="mp-card__artist">{{ musique.auteur }}</div>
+            </div>
+        </div>
+        {% empty %}
+        <p>Aucune musique dans ce genre.</p>
+        {% endfor %}
+    </div>
+</div>
