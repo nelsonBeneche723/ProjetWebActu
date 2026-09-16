@@ -31,9 +31,9 @@ SECRET_KEY = 'django-insecure-5#i&t^6@l%)psvjzr^w@f!ipea^p4gkh*nx$*f4#otnjp9mdmk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.0.176','192.168.0.175', 'projetactuweb-3.onrender.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.0.176','192.168.0.175', 'projetwebactu-3.onrender.com']
 
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000', 'https://projetactuweb-3.onrender.com']
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000', 'https://projetwebactu-3.onrender.com']
 # Application definition
 
 INSTALLED_APPS = [
