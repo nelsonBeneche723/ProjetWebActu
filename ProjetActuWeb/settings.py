@@ -33,8 +33,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.0.176','192.168.0.175', 'projetactuweb-3.onrender.com']
 
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
-
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000', 'https://projetactuweb-3.onrender.com']
 # Application definition
 
 INSTALLED_APPS = [
