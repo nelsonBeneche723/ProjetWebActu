@@ -30,6 +30,12 @@ from pyradios import RadioBrowser
 from django.utils import timezone
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+import logging
+import traceback
+
+logger = logging.getLogger(__name__)
+
+
 # Create your views here.
 # Avatar pour les profils utilisateurs
 avatar_definis = [('avatar-1', 'https://i.pravatar.cc/150?img=1'),
@@ -1358,9 +1364,13 @@ def ajoutercommentaires(request, slug):
 
 
 def AfficherTele(request):
-    tele = ChaineTV.objects.all()[:15]
-    return render(request, 'livetv.html', context={'channeltv':tele})
-
+    try:
+        tele = ChaineTV.objects.all()[:15]
+        return render(request, 'livetv.html', context={'channeltv': tele})
+    except Exception as e:
+        logger.error("Erreur AfficherTele: %s\n%s", e, traceback.format_exc())
+        raise  # important : on relance pour garder le 500 et voir le log
+      
 def regardertv(request, slug):
     chaine = get_object_or_404(ChaineTV, slug=slug)
     recommendations = ChaineTV.objects.exclude(id=chaine.id)[:5] # exclut la chaine qui en train de lire et affiche 5 autres
