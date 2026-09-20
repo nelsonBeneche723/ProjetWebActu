@@ -100,8 +100,7 @@ WSGI_APPLICATION = 'ProjetActuWeb.wsgi.application'
 DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-        ssl_require=os.environ.get("DB_SSL", "False") == "True",
+        conn_max_age=600
     )
 }
 
