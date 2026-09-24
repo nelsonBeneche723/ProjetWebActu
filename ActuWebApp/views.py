@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, HttpResponse, redirect
 from django.conf import settings
 from django.http import StreamingHttpResponse, JsonResponse
+from django.db.models.functions import Greatest
 import os
 import random
 from datetime import datetime
@@ -1294,8 +1295,7 @@ def affichermusiques(request):
     resultevangelique = Musiques.objects.filter(genre="gospel")[:6]
     return render(request, 'musiques.html', context={'resultcompas':resultcompas, 'resultafro':resultafro,
                                                      'resultevangelique':resultevangelique
-                                                     })
-
+                                                    })
 def lecturemusiques(request, slug):
     # on recupere la musique ou renvoi une erreur 404 si le slug n'existait pas
     musique = get_object_or_404(Musiques, slug=slug)
@@ -1536,17 +1536,21 @@ def musiques_par_genre(request, genre):
     return render(request, 'partials/musique_genre_page.html', contexte)  # page complète
 
 def tendance(request):
-    maintenant = timezone.now()
-    musiques = Musiques.objects.annotate(
-        age_jours=ExpressionWrapper(
-            (maintenant - F('date_ajout')) / timedelta(days=1), output_field=FloatField()
+  maintenant = timezone.now()
+  musiques = Musiques.objects.annotate(
+  age_jours=ExpressionWrapper(
+            Greatest(
+                (maintenant - F('date_ajout')) / timedelta(days=1),
+                0.04  # minimum ~1 heure, évite le zéro
+            ),
+            output_field=FloatField()
         )
     ).annotate(
         score=ExpressionWrapper(
-            F('nb_ecoutes') / F('age_jours') + 2, output_field=FloatField())
-    ).order_by('-score')[:20] #+2evite la division par 0, pour les nouveaux morceaux
-    return render(request, 'trending-song.html', {'musiques':musiques})
-
+            F('nb_ecoutes') / F('age_jours') + 2, output_field=FloatField()
+        )
+    ).order_by('-score')[:20]
+  return render(request, 'trending-song.html', {'musiques': musiques})
 def nouveauxmusiques(request):
     nouveautes = Musiques.objects.order_by('-date_ajout')[:20] # grouper par date(derniere enregistrement)
     return render(request, 'new-song.html', context={'nouveautes':nouveautes})
