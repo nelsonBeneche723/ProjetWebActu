@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, HttpResponse, redirect
 from django.conf import settings
 from django.http import StreamingHttpResponse, JsonResponse
-from django.db.models.functions import Greatest
+from django.db.models.functions import Greatest, Extract
 import os
 import random
 from datetime import datetime
@@ -1537,17 +1537,20 @@ def musiques_par_genre(request, genre):
 
 def tendance(request):
     maintenant = timezone.now()
+    # Version optimisée spécifiquement pour PostgreSQL
     musiques = Musiques.objects.annotate(
+        # 1. On extrait la différence en secondes (epoch) et on divise par 86400 pour avoir les jours en Float
         age_jours=ExpressionWrapper(
-            (maintenant - F('date_ajout')) / timedelta(days=1),
+            Extract(maintenant - F('date_ajout'), 'epoch') / 86400.0,
             output_field=FloatField()
         )
     ).annotate(
+        # 2. Application de votre formule corrigée (parenthèses pour priorité mathématique)
         score=ExpressionWrapper(
-            F('nb_ecoutes') - (F('age_jours') * 5), output_field=FloatField()
+            F('nb_ecoutes') / (F('age_jours') + 2.0), 
+            output_field=FloatField()
         )
-    ).order_by('-score')[:20]
-  
+    ).order_by('-score')[:20] 
   return render(request, 'trending-song.html', {'musiques': musiques})
 def nouveauxmusiques(request):
     nouveautes = Musiques.objects.order_by('-date_ajout')[:20] # grouper par date(derniere enregistrement)
