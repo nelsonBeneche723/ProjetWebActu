@@ -1536,20 +1536,18 @@ def musiques_par_genre(request, genre):
     return render(request, 'partials/musique_genre_page.html', contexte)  # page complète
 
 def tendance(request):
-  maintenant = timezone.now()
-  musiques = Musiques.objects.annotate(
-  age_jours=ExpressionWrapper(
-            Greatest(
-                (maintenant - F('date_ajout')) / timedelta(days=1),
-                0.04  # minimum ~1 heure, évite le zéro
-            ),
+    maintenant = timezone.now()
+    musiques = Musiques.objects.annotate(
+        age_jours=ExpressionWrapper(
+            (maintenant - F('date_ajout')) / timedelta(days=1),
             output_field=FloatField()
         )
     ).annotate(
         score=ExpressionWrapper(
-            F('nb_ecoutes') / F('age_jours') + 2, output_field=FloatField()
+            F('nb_ecoutes') - (F('age_jours') * 5), output_field=FloatField()
         )
     ).order_by('-score')[:20]
+  
   return render(request, 'trending-song.html', {'musiques': musiques})
 def nouveauxmusiques(request):
     nouveautes = Musiques.objects.order_by('-date_ajout')[:20] # grouper par date(derniere enregistrement)
