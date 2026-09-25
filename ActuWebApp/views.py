@@ -1540,18 +1540,18 @@ def tendance(request):
     # Version optimisée spécifiquement pour postgreSQL
     musiques = Musiques.objects.annotate(
         # 1. On extrait la différence en secondes (epoch) et on divise par 86400 pour avoir les jours en Float
-        age_jours=ExpressionWrapper(
+        age_jours = ExpressionWrapper(
             Extract(maintenant - F('date_ajout'), 'epoch') / 86400.0,
             output_field=FloatField()
         )
     ).annotate(
         # 2. Application de votre formule corrigée (parenthèses pour priorité mathématique)
-        score=ExpressionWrapper(
+        score = ExpressionWrapper(
             F('nb_ecoutes') / (F('age_jours') + 2.0), 
             output_field=FloatField()
         )
-    ).order_by('-score')[:20] 
-  return render(request, 'trending-song.html', {'musiques': musiques})
+    ).order_by('-score')[:20] # grouper au nombre de 20 scores de musiques
+    return render(request, 'trending-song.html', {'musiques': musiques})
 def nouveauxmusiques(request):
     nouveautes = Musiques.objects.order_by('-date_ajout')[:20] # grouper par date(derniere enregistrement)
     return render(request, 'new-song.html', context={'nouveautes':nouveautes})
