@@ -1537,7 +1537,7 @@ def musiques_par_genre(request, genre):
 
 def tendance(request):
     maintenant = timezone.now()
-    # Version optimisée spécifiquement pour PostgreSQL
+    # Version optimisée spécifiquement pour postgreSQL
     musiques = Musiques.objects.annotate(
         # 1. On extrait la différence en secondes (epoch) et on divise par 86400 pour avoir les jours en Float
         age_jours=ExpressionWrapper(
