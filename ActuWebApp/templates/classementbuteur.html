@@ -199,10 +199,10 @@
             <tbody>
 
                 <tr>
-                    <td class="col-rang">1</td>
-                    <td>Pierrot</td>
-                    <td>Barca</td>
-                    <td class="col-buts">50</td>
+                    <td class="col-rang">{{ forloop.counter }}</td>
+                    <td>{{ joueur.player_name }}</td>
+                    <td>{{ joueur.team_name }}</td>
+                    <td class="col-buts">{{ joueur.goals }}</td>
                 </tr>
 
             </tbody>
