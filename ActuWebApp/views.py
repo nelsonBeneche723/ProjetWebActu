@@ -1569,7 +1569,7 @@ def format_vues(vues_str):
         formatted = vues / 1_000_000
         return f"{formatted:.1f}".rstrip('0').rstrip('.') + "M"
     elif vues >= 1_000:
-        formatted = vues / 1_000_000
+        formatted = vues / 1_000
         return f"{formatted:.1f}".rstrip('0').rstrip('.') + "k"
     return str(vues)
 
