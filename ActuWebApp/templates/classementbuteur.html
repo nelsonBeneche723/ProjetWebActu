@@ -186,7 +186,7 @@
     <!-- Premier League -->
     <div class="ligue-section">
         <h3>Premier League</h3>
-
+        {% if buteurs_pl %}
         <table class="buteurs-table">
             <thead>
                 <tr>
@@ -197,14 +197,14 @@
                 </tr>
             </thead>
             <tbody>
-
+                {% for joueur in buteurs_pl %}
                 <tr>
                     <td class="col-rang">{{ forloop.counter }}</td>
                     <td>{{ joueur.player_name }}</td>
                     <td>{{ joueur.team_name }}</td>
                     <td class="col-buts">{{ joueur.goals }}</td>
                 </tr>
-
+                {% endfor %}
             </tbody>
         </table>
 
