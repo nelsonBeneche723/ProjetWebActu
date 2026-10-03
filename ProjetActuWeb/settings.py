@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from django.conf.global_settings import CSRF_TRUSTED_ORIGINS
 from pathlib import Path
 import os
-import dj_database_url
+# import dj_database_url
 
 from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,6 +23,7 @@ load_dotenv((BASE_DIR/'.env'))
 API_KEY_SPORTS = os.environ.get('API_KEY_SPORTS')
 API_KEYMETEO = os.environ.get('API_KEYMETEO')
 API_Unsplash = os.environ.get('API_Unsplash')
+paypal_client_id = os.environ.get('paypal_client_id')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -97,19 +98,19 @@ WSGI_APPLICATION = 'ProjetActuWeb.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-DATABASES = {
-    "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600
-    )
-}
+# DATABASES = {
+#     "default": dj_database_url.config(
+#         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+#         conn_max_age=600
+#     )
+# }
 
-#DATABASES = {
- #   'default': {
-      #  'ENGINE': 'django.db.backends.sqlite3',
-    #    'NAME': BASE_DIR / 'db.sqlite3',
-  #  }
-#}
+DATABASES = {
+   'default': {
+       'ENGINE': 'django.db.backends.sqlite3',
+       'NAME': BASE_DIR / 'db.sqlite3',
+   }
+}
 
 
 # Password validation
@@ -151,7 +152,7 @@ USE_TZ = True
 #STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [os.path.join(BASE_DIR,'static')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
