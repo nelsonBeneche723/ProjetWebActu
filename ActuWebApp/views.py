@@ -1609,3 +1609,7 @@ def playvideosyoutube(request):
 
     context = {"videosyoutube": videosyoutube}
     return render(request, 'videosyoutube.html', context)
+
+def don(request):
+    paypal_client_id = settings.paypal_client_id
+    return render(request, 'don.html', context={'paypal_client_id': paypal_client_id})
