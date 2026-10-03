@@ -31,7 +31,7 @@ paypal_client_id = os.environ.get('paypal_client_id')
 SECRET_KEY = 'django-insecure-5#i&t^6@l%)psvjzr^w@f!ipea^p4gkh*nx$*f4#otnjp9mdmk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.0.176','192.168.0.175', 'projetwebactu-3.onrender.com']
 
