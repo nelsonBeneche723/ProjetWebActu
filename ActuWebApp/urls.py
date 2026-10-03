@@ -1,49 +1,68 @@
-from django.urls import path
-from . import views
+"""
+URL configuration for ProjetActuWeb project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/5.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path, include
 
 app_name = 'ActuWebApp'
 urlpatterns = [
-    path('',  views.index, name='index'),
-    path('article/<int:year>/<int:month>/<int:day>/<slug:slug>/', views.article_detail, name='article_detail'),
-    path('sports/', views.infossportsactualites, name='sports_view'),
-    path('sports/score-en-direct/',views.matchsencours, name='match_encours'),
-    path('sports/classements-buteurs/', views.recuperertousbuteurs, name='cl_buteurs'),
-    path('sports/match-termine/', views.matchtermineend, name='match_termine'),
-    path('previsions-meteo/', views.affichermeteo, name='meteo_view'),
-    path('musiques/', views.affichermusiques, name='aff_mus'),
-    path('musiques/lecture/<slug:slug>/', views.lecturemusiques, name='play_mus'),
-    path('login/', views.seconnecter, name='connect'),
-    path('logout/', views.sedeconnecter, name='logout'),
-    path('create-account/', views.inscription, name='create'),
-    path('musiques/lecture/<slug:slug>/commenter/', views.ajoutercommentaires, name='addcomment'),
-    path('stations-radios', views.stationradio, name='statradio'),
-    path('sport/<int:year>/<int:month>/<int:day>/<slug:slug>/', views.sport_detail, name='sport_detail'),
-    path('sante/', views.infos_sante, name='sante'),
-    path('sciences/', views.infos_sciences, name='sciences'),
-    path('sante/<int:year>/<int:month>/<int:day>/<slug:slug>/', views.sante_detail, name='sante_detail'),
-    path('sciences/<int:year>/<int:month>/<int:day>/<slug:slug>/', views.science_detail, name='sciences_detail'),
-    path('live-tv/', views.AfficherTele, name='tele'),
-    path('live-tv/<slug:slug>/', views.regardertv, name='livetv'),
-    path('playlist/modal/creer', views.modal_creer_playlist, name='modal_creer_play'),
-    path('playlist/creer', views.creerplaylist, name='creer_playlist'),
-    # path('playlist/fragment', views.fragment_Play, name='fragment_mes_playlists'),
-    # path('playlist/ajouter/<int:musique_id>/<int:playlist_id>/', views.ajouter_playlist, name='ajout_playlist'),
-    # path('playlist/menu/<int:musique_id>/<int:playlist_id>/', views.menu_playlist, name='menu_playlists'),
-    # path('playlists/creer/modal/', views.modal_creer_playlist, name='modal_creer_play'),
-    # path('playlists/creer/', views.creer_playlist, name='modal_creer_play'),
-    path('playlists/mes-playlists/', views.fragment_mes_playlists, name='fragment_mes_playlists'),
-    path('playlists/<int:playlist_id>/musiques/', views.playlist_musiques, name='playlist_musiques'),
-    path('playlists/<int:playlist_id>/retirer/<int:musique_id>/', views.retirer_musique_playlist,name='retirer_musique_playlist'),
-    path('musique/<int:musique_id>/ajouter-playlist/', views.ajout_playlist, name='ajout_playlist'),
-    path('musique/<int:musique_id>/playlist/<int:playlist_id>/ajouter/', views.ajouter_musique_playlist, name='ajouter_musique_playlist'),
-    path('playlists/<int:playlist_id>/supprimerplaylist/', views.supprimerplaylist, name='supp_playlist'),
-    path('playlists/<int:playlist_id>/detailplaylist/', views.detail_playlist, name='detail_playlist'),
-    path('gemini-ai', views.assistanceai, name='ai_assistant'),
-    path('recherche-musique', views.recherchermusiques, name='rechmus'),
-    path('musiques/genre/<str:genre>/', views.musiques_par_genre, name='musiques_genre'),
-    path('musiques/tendances/', views.tendance, name='tendance'),
-    path('musiques/nouveautes/', views.nouveauxmusiques, name='nouveautes'),
-    path('actualites-musiques/', views.actualitesmusiques, name='actumusiques'),
-    path('videos-youtube/', views.playvideosyoutube, name='videosyt'),
+    path('', include('ActuWebApp.urls')),
+    path('admin/', admin.site.urls),
+    path('article/<int:year>/<int:month>/<int:day>/<slug:slug>/', include('ActuWebApp.urls')),
+    path('sports/', include('ActuWebApp.urls')),
+    path('sports/score-en-direct/', include('ActuWebApp.urls')),
+    path('sports/classements-buteurs/', include('ActuWebApp.urls')),
+    path('sports/match-termine/', include('ActuWebApp.urls')),
+    path('previsions-meteo/', include('ActuWebApp.urls')),
+    path('musiques/', include('ActuWebApp.urls')),
+    path('musiques/lecture/<slug:slug>/', include('ActuWebApp.urls')),
+    path('login/', include('ActuWebApp.urls')),
+    path('logout/', include('ActuWebApp.urls')),
+    path('create-account/', include('ActuWebApp.urls')),
+    path('musiques/lecture/<slug:slug>/commenter/', include('ActuWebApp.urls')),
+    path('stations-radios', include('ActuWebApp.urls')),
+    path('sport/<int:year>/<int:month>/<int:day>/<slug:slug>/', include('ActuWebApp.urls')),
+    path('sante/', include('ActuWebApp.urls')),
+    path('sante/<int:year>/<int:month>/<int:day>/<slug:slug>/', include('ActuWebApp.urls')),
+    path('sciences/', include('ActuWebApp.urls')),
+    path('sciences/<int:year>/<int:month>/<int:day>/<slug:slug>/', include('ActuWebApp.urls')),
+    path('live-tv/', include('ActuWebApp.urls')),
+    path('live-tv/<slug:slug>', include('ActuWebApp.urls')),
+#     path('playlist/modal/creer', include('ActuWebApp.urls')),
+#     path('playlist/creer', include('ActuWebApp.urls')),
+#     path('playlist/fragment',include('ActuWebApp.urls')),
+#     path('playlist/ajouter/<int:musique_id>/<int:playlist_id>/',include('ActuWebApp.urls')),
+#     path('playlist/menu/<int:musique_id>/<int:playlist_id>/', include('ActuWebApp.urls'))
+#
+    path('playlists/creer/modal/',include('ActuWebApp.urls')),
+    path('playlists/creer/', include('ActuWebApp.urls')),
+    path('playlists/mes-playlists/',include('ActuWebApp.urls')),
+    path('playlists/<int:playlist_id>/musiques/',include('ActuWebApp.urls')),
+    path('playlists/<int:playlist_id>/retirer/<int:musique_id>/', include('ActuWebApp.urls')),
+    path('musique/<int:musique_id>/ajouter-playlist/', include('ActuWebApp.urls')),
+    path('musique/<int:musique_id>/playlist/<int:playlist_id>/ajouter/', include('ActuWebApp.urls')),
+    path('playlists/<int:playlist_id>/supprimerplaylist/', include('ActuWebApp.urls')),
+    path('playlists/<int:playlist_id>/detailplaylist/', include('ActuWebApp.urls')),
+    path('assistant-ai', include('ActuWebApp.urls')),
+    path('recherche-musique', include('ActuWebApp.urls')),
+    path('musiques/genre/<str:genre>/', include('ActuWebApp.urls')),
+    path('musiques/tendances/', include('ActuWebApp.urls')),
+    path('musiques/nouveautes/', include('ActuWebApp.urls')),
+    path('actualites-musiques/',  include('ActuWebApp.urls')),
+    path('videos-youtube/', include('ActuWebApp.urls')),
+    path('don/', include('ActuWebApp.urls')),
 
 ]
