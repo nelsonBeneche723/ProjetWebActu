@@ -788,6 +788,9 @@
         <li><a href="{% url 'ActuWebApp:sciences' %}"><i class="fas fa-flask"></i><span>Sciences</span></a></li>
         <li><a href="{% url 'ActuWebApp:aff_mus' %}" class="is-music"><i class="fas fa-music"></i><span>Musiques</span></a></li>
 <!--        <li><a href="{% url 'ActuWebApp:ai_assistant' %}" class="is-ai"><i class="fas fa-wand-magic-sparkles"></i><span>Gemini AI</span></a></li>-->
+    <li>
+        <a href="{% url 'ActuWebApp:don' %}" hx-boost="false"> <i class="fas fa-heart"></i> <span>Faire un don</span></a>
+    </li>
     </ul>
 
     <div class="awm-nav__actions">
@@ -849,13 +852,21 @@
                 <span class="dn-ico"><i class="fas fa-music"></i></span>Musiques
             </a>
         </li>
-       <!-- <li>
-            <a href="{% url 'ActuWebApp:ai_assistant' %}" class="is-ai">
-                <span class="dn-ico"><i class="fas fa-wand-magic-sparkles"></i></span>
-                Gemini AI
-                <span class="dn-pill">IA</span>
-            </a>
-        </li>-->
+<!--        <li>-->
+<!--            <a href="{% url 'ActuWebApp:ai_assistant' %}" class="is-ai">-->
+<!--                <span class="dn-ico"><i class="fas fa-wand-magic-sparkles"></i></span>-->
+<!--                Gemini AI-->
+<!--                <span class="dn-pill">IA</span>-->
+<!--            </a>-->
+<!--        </li>-->
+        <li>
+        <a href="{% url 'ActuWebApp:don' %}" hx-boost="false">
+            <span class="dn-ico">
+                <i class="fas fa-heart"></i>
+            </span>Faire un don </a></li>
+
+<!--            <a href="{% url 'ActuWebApp:don' %}" hx-boost="false"> <i class="fas fa-heart"></i> <span>Faire un don</span></a>-->
+         </li>
     </ul>
 
     <div class="awm-drawer__foot">
